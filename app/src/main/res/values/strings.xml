@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Ripe</string>
+    <string name="facebook_app_id">445524146249994</string>
+    <string name="fb_login_protocol_scheme">445524146249994</string>
+</resources>
