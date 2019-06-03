@@ -1,4 +1,4 @@
-package Ripe.ripe;
+package ripe.ripe;
 
 import org.junit.Test;
 
