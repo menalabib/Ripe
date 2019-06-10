@@ -15,10 +15,16 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -95,5 +101,35 @@ public class MainActivity extends AppCompatActivity {
         request.setParameters(parameters);
         // Initiate the GraphRequest
         request.executeAsync();
+    }
+
+
+    /** sample code to upload to our blob storage **/
+    private static final String storageURL = "BLOB_STORAGE_URL";
+    private static final String storageContainer = "ribeblol";
+    private static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=ripeblob;AccountKey=ZbG1DUXzpTAJfZJM2s3TlifmUEI/gj/pw5acLv0Ht0uqniOVYYB41r0tAulZB53+NtXDCUruUFplXtfdqQE30w==;EndpointSuffix=core.windows.net";
+
+    protected void storeImageInBlobStorage(String imgPath){
+        try
+        {
+            // Retrieve storage account from connection-string.
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
+
+            // Create the blob client.
+            CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
+
+            // Retrieve reference to a previously created container.
+            CloudBlobContainer container = blobClient.getContainerReference(storageContainer);
+
+            // Create or overwrite the blob (with the name "example.jpeg") with contents from a local file.
+            CloudBlockBlob blob = container.getBlockBlobReference("example.jpg");
+            File source = new File(imgPath);
+            blob.upload(new FileInputStream(source), source.length());
+        }
+        catch (Exception e)
+        {
+            // Output the stack trace.
+            e.printStackTrace();
+        }
     }
 }
