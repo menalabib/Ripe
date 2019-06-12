@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <TextView
+            android:id="@+id/title"
+            android:fontFamily="@font/alberto"
+            android:textSize="100.0sp"
+            android:textColor="@color/peach"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/app_name" />
+
+        <ImageView
+            android:id="@+id/login_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="60.0dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/login_logo" />
+
+        <Button
+            android:id="@+id/btn_fb_login"
+            android:layout_below="@id/login_logo"
+            android:text="@string/login_fb"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:layout_marginTop="100.0dp"
+            android:background="@drawable/button_layout"
+            android:drawableStart="@drawable/login_fb"
+            android:drawablePadding="20dp"
+            android:paddingLeft="60dp"
+            android:paddingRight="60dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+</RelativeLayout>
+
+
