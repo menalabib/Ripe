@@ -32,6 +32,13 @@ import java.util.Arrays;
 public class LoginActivity extends Activity {
 
     private CallbackManager callbackManager;
+    private String name;
+    private String email;
+    private String image;
+    public static final String FB_NAME = "com.example.ripe.name";
+    public static final String FB_EMAIL = "com.example.ripe.email";
+    public static final String FB_IMAGE = "com.example.ripe.image";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,14 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
         callbackManager = CallbackManager.Factory.create();
 
+        if(isLoggedIn()){
+            Intent intent = new Intent(LoginActivity.this, NavActivity.class);
+            intent.putExtra(FB_NAME, name);
+            intent.putExtra(FB_EMAIL, email);
+            intent.putExtra(FB_IMAGE, image);
+            startActivity(intent);
+        }
+
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
@@ -50,6 +65,12 @@ public class LoginActivity extends Activity {
                         Log.d("Success", "Login");
                         AccessToken accessToken = loginResult.getAccessToken();
                         useLoginInformation(accessToken);
+                        Intent intent = new Intent(LoginActivity.this, NavActivity.class);
+                        intent.putExtra(FB_NAME, name);
+                        intent.putExtra(FB_EMAIL, email);
+                        intent.putExtra(FB_IMAGE, image);
+                        finish();
+                        startActivity(intent);
                     }
 
                     @Override
@@ -90,9 +111,9 @@ public class LoginActivity extends Activity {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
                 try {
-                    String name = object.getString("name");
-                    String email = object.getString("email");
-                    String image = object.getJSONObject("picture").getJSONObject("data").getString("url");
+                    name = object.getString("name");
+                    email = object.getString("email");
+                    image = object.getJSONObject("picture").getJSONObject("data").getString("url");
                     System.out.println(name);
                     System.out.println(email);
                 } catch (JSONException e) {
@@ -107,6 +128,11 @@ public class LoginActivity extends Activity {
         request.setParameters(parameters);
         // Initiate the GraphRequest
         request.executeAsync();
+    }
+
+    public boolean isLoggedIn() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
     }
 
     /** sample code to upload to our blob storage **/
