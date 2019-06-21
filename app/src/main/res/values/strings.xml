@@ -3,4 +3,15 @@
     <string name="login_fb">Sign in with Facebook</string>
     <string name="facebook_app_id">445524146249994</string>
     <string name="fb_login_protocol_scheme">445524146249994</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_nav">NavActivity</string>
+    <string name="title_feed">Feed</string>
+    <string name="title_upload">Upload</string>
+    <string name="title_leaderboard">Leaderboard</string>
+    <string name="title_profile">Profile</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
