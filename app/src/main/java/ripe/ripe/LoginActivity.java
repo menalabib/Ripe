@@ -145,13 +145,10 @@ public class LoginActivity extends Activity {
         {
             // Retrieve storage account from connection-string.
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
-
             // Create the blob client.
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-
             // Retrieve reference to a previously created container.
             CloudBlobContainer container = blobClient.getContainerReference(storageContainer);
-
             // Create or overwrite the blob (with the name "example.jpeg") with contents from a local file.
             CloudBlockBlob blob = container.getBlockBlobReference("example.jpg");
             File source = new File(imgPath);
