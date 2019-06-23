@@ -169,73 +169,82 @@ public class FeedFragment extends Fragment {
     }
 
     private void getArrayData() {
+        Bitmap icon9 = BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.yeet);
+        UserDataModel card9 = new UserDataModel();
+        card9.setName("YEEEEET");
+        card9.setTotalLikes(100);
+        card9.setPhoto(icon9);
+        card9.setIsVideo(false);
+        userDataModelArrayList.add(card9);
+
         Bitmap icon8 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.ta);
         UserDataModel card8 = new UserDataModel();
-        card8.setName("Ripe8");
+        card8.setName("TA");
         card8.setTotalLikes(100);
         card8.setPhoto(icon8);
         card8.setIsVideo(false);
         userDataModelArrayList.add(card8);
 
         Bitmap icon7 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.oil);
         UserDataModel card7 = new UserDataModel();
-        card7.setName("Ripe7");
+        card7.setName("Drumpf");
         card7.setTotalLikes(100);
         card7.setPhoto(icon7);
         card7.setIsVideo(false);
         userDataModelArrayList.add(card7);
 
         Bitmap icon6 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.home);
         UserDataModel card6 = new UserDataModel();
-        card6.setName("Ripe6");
+        card6.setName("Water Water Water");
         card6.setTotalLikes(100);
         card6.setPhoto(icon6);
         card6.setIsVideo(false);
         userDataModelArrayList.add(card6);
 
         Bitmap icon5 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.help);
         UserDataModel card5 = new UserDataModel();
-        card5.setName("Ripe5");
+        card5.setName("Ouch");
         card5.setTotalLikes(100);
         card5.setPhoto(icon5);
         card5.setIsVideo(false);
         userDataModelArrayList.add(card5);
 
         Bitmap icon4 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.fast);
         UserDataModel card4 = new UserDataModel();
-        card4.setName("Ripe4");
+        card4.setName("Speedy");
         card4.setTotalLikes(100);
         card4.setPhoto(icon4);
         card4.setIsVideo(false);
         userDataModelArrayList.add(card4);
 
         Bitmap icon3 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.exam);
         UserDataModel card3 = new UserDataModel();
-        card3.setName("Ripe3");
+        card3.setName("Finals");
         card3.setTotalLikes(100);
         card3.setPhoto(icon3);
         card3.setIsVideo(false);
         userDataModelArrayList.add(card3);
 
         Bitmap icon2 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.coop);
         UserDataModel card2 = new UserDataModel();
-        card2.setName("Ripe2");
+        card2.setName("Hire me pls");
         card2.setTotalLikes(100);
         card2.setPhoto(icon2);
         card2.setIsVideo(false);
         userDataModelArrayList.add(card2);
 
         Bitmap icon1 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.login_logo);
+                R.drawable.apple);
         UserDataModel card1 = new UserDataModel();
-        card1.setName("Ripe1");
+        card1.setName("Apple");
         card1.setTotalLikes(100);
         card1.setPhoto(icon1);
         card1.setIsVideo(false);
