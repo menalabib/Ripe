@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context="ripe.ripe.NavFragments.LeaderboardFragment">
+
+    <TextView
+        android:id="@+id/leader_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_margin="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:text="Ripest Users"
+        android:textSize="30sp"
+        />
+
+    <View
+        android:layout_width="100dp"
+        android:layout_height="5dp"
+        android:layout_marginBottom="10dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/leader_divider"
+        android:layout_below="@+id/leader_title"
+        android:background="@color/peach"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/leader_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/leader_divider"
+        android:scrollbars="vertical"
+        />
+
+</RelativeLayout>

@@ -55,6 +55,7 @@ public class LoginActivity extends Activity {
             intent.putExtra(FB_NAME, name);
             intent.putExtra(FB_EMAIL, email);
             intent.putExtra(FB_IMAGE, image);
+            finish();
             startActivity(intent);
         }
 
