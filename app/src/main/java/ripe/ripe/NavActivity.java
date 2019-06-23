@@ -10,9 +10,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 public class NavActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
-    private TextView mTextMessage;
-    Fragment currentFragment = null;
-    FragmentTransaction ft;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
