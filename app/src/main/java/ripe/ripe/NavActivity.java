@@ -2,12 +2,13 @@ package ripe.ripe;
 
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
-import android.widget.TextView;
+
+import ripe.ripe.NavFragments.FeedFragment;
+import ripe.ripe.NavFragments.LeaderboardFragment;
+import ripe.ripe.NavFragments.ProfileFragment;
 
 public class NavActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -22,6 +23,7 @@ public class NavActivity extends AppCompatActivity implements BottomNavigationVi
         setContentView(R.layout.activity_nav);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setItemIconTintList(null);
         navView.setOnNavigationItemSelectedListener(this);
 
         loadFragment(new FeedFragment());

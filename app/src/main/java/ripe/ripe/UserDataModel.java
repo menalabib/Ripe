@@ -35,6 +35,6 @@ public class UserDataModel {
     public AssetFileDescriptor getVideo() { return video; }
     public void setVideo(AssetFileDescriptor vid) { this.video = vid; }
 
-    public Boolean isVideo() { return isVideo; }
+    public Boolean getIsVideo() { return isVideo; }
     public void setIsVideo(Boolean isVid) { this.isVideo = isVid; }
 }

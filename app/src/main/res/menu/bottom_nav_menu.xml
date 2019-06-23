@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/navigation_feed"
-        android:icon="@drawable/ic_feed"
+        android:icon="@drawable/selector_feed"
         android:title="@string/title_feed" />
 
     <item
@@ -13,11 +13,11 @@
 
     <item
         android:id="@+id/navigation_leaderboard"
-        android:icon="@drawable/ic_leaderboard"
+        android:icon="@drawable/selector_leaderboard"
         android:title="@string/title_leaderboard" />
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_profile"
+        android:icon="@drawable/selector_profile"
         android:title="@string/title_profile" />
 
 </menu>

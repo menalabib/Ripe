@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.NavFragments;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,6 +17,9 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import java.util.ArrayList;
+
+import ripe.ripe.R;
+import ripe.ripe.UserDataModel;
 
 public class FeedFragment extends Fragment {
     int ctr;
@@ -100,7 +103,7 @@ public class FeedFragment extends Fragment {
         titleTextView.setText(userDataModelArrayList.get(ctr).getTitle());
 
         // TODO: deal with videos
-        if (userDataModelArrayList.get(ctr).isVideo) {
+        if (userDataModelArrayList.get(ctr).getIsVideo()) {
         }
         else {
             videoView.setAlpha(0);
@@ -122,8 +125,8 @@ public class FeedFragment extends Fragment {
                         y = (int) event.getY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        containerView.setX(event.getRawX() - (float) windowWidth/2);
-                        containerView.setY(event.getRawY() - (float) windowHeight/2);
+                        containerView.setX(x_cord - (float) windowWidth/2);
+                        containerView.setY(y_cord - (float) windowHeight/2);
                         containerView.setRotation((float) ((x_cord - screenCenter) * (Math.PI / 128)));
 
                         if (x_cord >= screenCenter*1.5) {
