@@ -60,7 +60,7 @@ public class Main {
         Retrofit retrofit = new Retrofit
                 .Builder()
                 .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create())
+//                .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         RipeService service = retrofit.create(RipeService.class);
@@ -85,16 +85,17 @@ public class Main {
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 
+//        new Post(
+//                "titl",
+//                "uid",
+//                new String [1],
+//                "Shak",
+//                1,
+//                2,
+//                3
+//        )
 
-        service.postContent(new Post(
-                "titl",
-                "uid",
-                new String [1],
-                "Shak",
-                1,
-                2,
-                3
-        ), body).execute();
+        service.postContent(title, uid, tags, ub, uv, dv, views, body).execute();
         System.out.println("Donzo");
     }
 
