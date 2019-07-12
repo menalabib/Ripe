@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+}
+mainClassName = 'Ripe.Main'
+sourceSets {
+    main {
+        java {
+            srcDirs = ['.']
+        }
+        resources {
+            srcDir('images')
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.squareup.okio:okio:2.2.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.1'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+version = '1.2.1'
