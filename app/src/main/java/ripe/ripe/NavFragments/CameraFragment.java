@@ -10,24 +10,15 @@ import android.view.ViewGroup;
 
 import ripe.ripe.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link GroupsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link GroupsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class GroupsFragment extends Fragment {
-
+public class CameraFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
-    public GroupsFragment() {
+    public CameraFragment() {
         // Required empty public constructor
     }
 
-    public static GroupsFragment newInstance(String param1, String param2) {
-        GroupsFragment fragment = new GroupsFragment();
+    public static CameraFragment newInstance(String param1, String param2) {
+        CameraFragment fragment = new CameraFragment();
         return fragment;
     }
 
@@ -40,7 +31,7 @@ public class GroupsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_groups, container, false);
+        return inflater.inflate(R.layout.fragment_camera, container, false);
     }
 
     @Override
