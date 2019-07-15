@@ -20,7 +20,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # blob constants
 BLOB_ACCOUNT_KEY = 'ZbG1DUXzpTAJfZJM2s3TlifmUEI/gj/pw5acLv0Ht0uqniOVYYB41r0tAulZB53+NtXDCUruUFplXtfdqQE30w=='
 CONTAINER_NAME = 'usercontent'
-ACCOUNT_NAME = 'ripeblob'
+ACCOUNT_NAME = 'ripeblob2'
 
 # content constants
 TITLE = 'title'
@@ -41,7 +41,6 @@ def handle_invalid_usage(error):
 
 @app.route('/post_content', methods=['POST'])
 def post_content():
-    print(request.files);
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
 
@@ -63,13 +62,13 @@ def post_content():
     block_blob_service.create_blob_from_path(CONTAINER_NAME, request.json[UUID], os.path.join(UPLOAD_FOLDER, filename))
 
     content = {
-        TITLE: request.json[TITLE],
-        UUID: request.json[UUID],
-        TAGS: request.json[TAGS],
-        UPLOADED_BY: request.json[UPLOADED_BY],
-        UPVOTES: request.json[UPVOTES],
-        DOWNVOTES: request.json[DOWNVOTES],
-        VIEWS: request.json[VIEWS],
+        TITLE: request.body[TITLE],
+        UUID: request.body[UUID],
+        TAGS: request.body[TAGS],
+        UPLOADED_BY: request.body[UPLOADED_BY],
+        UPVOTES: request.body[UPVOTES],
+        DOWNVOTES: request.body[DOWNVOTES],
+        VIEWS: request.body[VIEWS],
     }
 
     post_id = db.insert_one(content)
@@ -113,7 +112,7 @@ def get_content(content_uuid):
     
 
 @app.route('/update_content_view/<content_uid>', methods=['PUT'])
-def update_content_view(content_uid):
+def update_content_views(content_uid):
     content = [cont for cont in db if (cont['id'] == content_uid)]
     if 'action' in request.json:
         content[VIEWS] += 1
