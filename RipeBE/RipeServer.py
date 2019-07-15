@@ -1,4 +1,6 @@
 import os
+
+from azure.storage.blob.baseblobservice import BaseBlobService
 from flask import Flask, flash, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 from azure.storage.blob import BlockBlobService, PublicAccess
@@ -11,14 +13,15 @@ DOWNLOAD_FOLDER = './downloaded_pics'
 
 # db constants
 client = MongoClient('mongodb://localhost:27017/')
-db = client.local
+db = client['local']
+content_collection = db["content"]
 
 # flask configurations
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # blob constants
-BLOB_ACCOUNT_KEY = 'ZbG1DUXzpTAJfZJM2s3TlifmUEI/gj/pw5acLv0Ht0uqniOVYYB41r0tAulZB53+NtXDCUruUFplXtfdqQE30w=='
+BLOB_ACCOUNT_KEY = 'V0UU003ljJsLRjoK7OE4f9+wy3/4tDtqapFmMg3pbhtdPOWQbfw82K/Q1PAVWHcA2WkYp921o5kXMkQYKopuCQ=='
 CONTAINER_NAME = 'usercontent'
 ACCOUNT_NAME = 'ripeblob2'
 
@@ -44,7 +47,7 @@ def post_content():
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
 
-    file = request.files['file']
+    file = request.files['image']
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
@@ -52,26 +55,28 @@ def post_content():
     block_blob_service = BlockBlobService(account_name=ACCOUNT_NAME, account_key=BLOB_ACCOUNT_KEY)
 
     # Create a container called 'usercontent'.
-   
     block_blob_service.create_container(CONTAINER_NAME)
 
     # Set the permission so the blobs are public.
     block_blob_service.set_container_acl(CONTAINER_NAME, public_access=PublicAccess.Container)
 
+    uuid = request.form[UUID]
+
     # Upload the created file, use local_file_name for the blob name.
-    block_blob_service.create_blob_from_path(CONTAINER_NAME, request.json[UUID], os.path.join(UPLOAD_FOLDER, filename))
+    block_blob_service.create_blob_from_path(CONTAINER_NAME, uuid, os.path.join(UPLOAD_FOLDER, filename))
 
     content = {
-        TITLE: request.body[TITLE],
-        UUID: request.body[UUID],
-        TAGS: request.body[TAGS],
-        UPLOADED_BY: request.body[UPLOADED_BY],
-        UPVOTES: request.body[UPVOTES],
-        DOWNVOTES: request.body[DOWNVOTES],
-        VIEWS: request.body[VIEWS],
+        TITLE: request.form[TITLE],
+        UUID: request.form[UUID],
+        TAGS: request.form[TAGS],
+        UPLOADED_BY: request.form[UPLOADED_BY],
+        UPVOTES: request.form[UPVOTES],
+        DOWNVOTES: request.form[DOWNVOTES],
+        VIEWS: request.form[VIEWS],
     }
 
-    post_id = db.insert_one(content)
+    post_id = content_collection.insert_one(content)
+    print(post_id)
 
     # List the blobs in the container.
     print("\nList blobs in the container")
@@ -79,16 +84,16 @@ def post_content():
     for blob in generator:
         print("\t Blob name: " + blob.name)
 
-    return post_id
+    return "Content Uploaded"
 
 
 @app.route('/create_user/', methods=['POST'])
 def create_user():
     if db.find_one({'id': request.json['id']}) is not None:
         user = {
-            'id': request.json['id'],
-            'name': request.json['name'],
-            'email': request.json['email'],
+            'id': request.form['id'],
+            'name': request.form['name'],
+            'email': request.form['email'],
             'videos_uploaded': [],
             'score': 0,
             'saved_videos': [],
@@ -124,3 +129,8 @@ def update_content_views(content_uid):
         return "Content Updated!"
 
     return InvalidUsage('Cannot find action to update...', status_code=410)
+
+
+if __name__ == "__main__":
+    app.run(host='10.32.23.26')
+
