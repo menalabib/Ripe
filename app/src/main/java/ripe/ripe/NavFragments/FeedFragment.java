@@ -62,7 +62,7 @@ public class FeedFragment extends Fragment {
         getArrayData();
 
         // Load first four cards
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             createCard();
         }
         return view;
