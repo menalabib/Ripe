@@ -17,23 +17,8 @@ import java.io.InputStream;
 
 public class Main {
 
-    public interface RipeService {
-        @Multipart
-        @POST("post_content")
-        Call<ResponseBody> postContent(
-                @Part("title") RequestBody title,
-                @Part("uid") RequestBody uid,
-                @Part("tags") RequestBody tags,
-                @Part("uploaded_by") RequestBody ub,
-                @Part("upvotes") RequestBody uv,
-                @Part("downvotes") RequestBody dv,
-                @Part("views") RequestBody v,
-//                @Body Post p,
-                @Part MultipartBody.Part image
-        );
-    }
 
-    private class Post {
+    private class ContentPost {
         private String title;
         private String uuid;
         private String[] tags;
@@ -42,9 +27,9 @@ public class Main {
         private Integer downvotes;
         private Integer views;
 
-        Post(String title, String uuid, String[] tags,
-             String uploaded_by, Integer upvotes, Integer downvotes,
-             Integer views) {
+        ContentPost(String title, String uuid, String[] tags,
+                    String uploaded_by, Integer upvotes, Integer downvotes,
+                    Integer views) {
             this.title = title;
             this.uuid = uuid;
             this.tags = tags;
@@ -60,7 +45,6 @@ public class Main {
         Retrofit retrofit = new Retrofit
                 .Builder()
                 .baseUrl(url)
-//                .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         RipeService service = retrofit.create(RipeService.class);
@@ -84,16 +68,6 @@ public class Main {
         File file = new File(getClass().getClassLoader().getResource("test.jpg").getFile());
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-
-//        new Post(
-//                "titl",
-//                "uid",
-//                new String [1],
-//                "Shak",
-//                1,
-//                2,
-//                3
-//        )
 
         service.postContent(title, uid, tags, ub, uv, dv, views, body).execute();
         System.out.println("Donzo");
