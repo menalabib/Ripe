@@ -60,7 +60,7 @@ public class NavActivity extends AppCompatActivity implements BottomNavigationVi
                 fragment = new GroupsFragment();
                 break;
             case R.id.navigation_upload:
-                fragment = new CameraFragment();
+                fragment = new ShareFragment();
                 break;
         }
         return loadFragment(fragment);

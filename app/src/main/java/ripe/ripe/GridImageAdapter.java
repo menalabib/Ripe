@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+
 public class GridImageAdapter extends BaseAdapter {
 
     private Context context;
@@ -15,6 +17,21 @@ public class GridImageAdapter extends BaseAdapter {
     public GridImageAdapter(Context c, int[] images) {
         context = c;
         this.thumbIds = images;
+    }
+
+    private Context mContext;
+    private LayoutInflater mInflater;
+    private int layoutResource;
+    private String mAppend;
+    private ArrayList<String> imgURLs;
+
+    public GridImageAdapter(Context context, int layoutResource, String append, ArrayList<String> imgURLs) {
+        super();
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        this.layoutResource = layoutResource;
+        mAppend = append;
+        this.imgURLs = imgURLs;
     }
 
     @Override
