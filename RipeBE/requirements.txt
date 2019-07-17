@@ -1,3 +1,5 @@
+behave
+nose
 azure
 altgraph==0.10.2
 aniso8601==0.82
