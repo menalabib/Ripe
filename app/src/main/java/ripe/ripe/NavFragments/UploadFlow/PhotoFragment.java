@@ -1,8 +1,9 @@
-package ripe.ripe;
+package ripe.ripe.NavFragments.UploadFlow;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -11,6 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import ripe.ripe.R;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -105,9 +110,31 @@ public class PhotoFragment extends Fragment {
 
         if (requestCode == CAMERA_REQUEST_CODE) {
 
+            Bitmap bitmap = null;
+            try {
+                if (data.getExtras().get("data") != null) {
+                    bitmap = (Bitmap) data.getExtras().get("data");
+                    Intent intent = new Intent(getActivity(), TitleActivity.class);
+                    intent.putExtra(getString(R.string.selected_bitmap), bitmap);
+                    startActivity(intent);
+                }
+            }
+            catch (NullPointerException e) { }
         }
         else if (requestCode == VIDEO_REQUEST_CODE) {
 
+            Uri videoUri = null;
+            try {
+                if (data.getData() != null) {
+                    videoUri = data.getData();
+                    if (resultCode == RESULT_OK) {
+                        Intent intent = new Intent(getActivity(), TitleActivity.class);
+                        intent.putExtra(getString(R.string.selected_video), videoUri);
+                        startActivity(intent);
+                    }
+                }
+            }
+            catch (NullPointerException e) { }
         }
     }
 

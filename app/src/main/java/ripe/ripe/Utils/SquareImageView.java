@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;

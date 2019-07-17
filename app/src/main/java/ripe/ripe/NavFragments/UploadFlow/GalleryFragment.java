@@ -1,9 +1,10 @@
-package ripe.ripe;
+package ripe.ripe.NavFragments.UploadFlow;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +19,15 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
+
+import ripe.ripe.R;
+import ripe.ripe.Utils.FilePaths;
+import ripe.ripe.Utils.FileSearch;
+import ripe.ripe.Utils.GridImageAdap;
 
 public class GalleryFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
@@ -30,6 +38,7 @@ public class GalleryFragment extends Fragment {
     private Spinner directorySpinner;
 
     private ArrayList<String> directories;
+    private String selectedImage;
 
     public GalleryFragment() {
         // Required empty public constructor
@@ -61,6 +70,9 @@ public class GalleryFragment extends Fragment {
         nextScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), TitleActivity.class);
+                intent.putExtra(getString(R.string.selected_image), selectedImage);
+                startActivity(intent);
             }
         });
 
@@ -82,7 +94,6 @@ public class GalleryFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
@@ -94,7 +105,12 @@ public class GalleryFragment extends Fragment {
         }
         directories.add(filePaths.CAMERA);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, directories);
+        final ArrayList<String> directoryNames = new ArrayList<>();
+        for (String dir : directories) {
+            directoryNames.add(dir.substring(dir.lastIndexOf("/") + 1));
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, directoryNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         directorySpinner.setAdapter(adapter);
         directorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -121,5 +137,43 @@ public class GalleryFragment extends Fragment {
         if (imgURLS.size() != 0) {
             gridView.setAdapter(gridImageAdapter);
         }
+
+        setImage(imgURLS.get(0), galleryImage, "file:/");
+        selectedImage = imgURLS.get(0);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                setImage(imgURLS.get(i), galleryImage, "file:/");
+                selectedImage = imgURLS.get(i);
+            }
+        });
+    }
+
+    private void setImage(String imgURL, ImageView imageView, String append) {
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getActivity()));
+
+        imageLoader.displayImage(append + imgURL, imageView, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                mProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 }

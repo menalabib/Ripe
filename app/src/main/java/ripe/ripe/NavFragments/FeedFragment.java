@@ -19,7 +19,7 @@ import android.widget.VideoView;
 import java.util.ArrayList;
 
 import ripe.ripe.R;
-import ripe.ripe.UserDataModel;
+import ripe.ripe.Utils.UserDataModel;
 
 public class FeedFragment extends Fragment {
     int ctr;

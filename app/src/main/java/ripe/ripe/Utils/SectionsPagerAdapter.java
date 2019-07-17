@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 
 import android.support.v4.app.Fragment;

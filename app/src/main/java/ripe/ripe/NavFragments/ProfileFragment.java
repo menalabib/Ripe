@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import ripe.ripe.R;
-import ripe.ripe.GridImageAdapter;
+import ripe.ripe.Utils.GridImageAdapter;
 
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";

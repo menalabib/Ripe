@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/relLayout1">
+        <include layout="@layout/snippet_tags_toolbar"></include>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relLayout2"
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/textInput_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_weight="1"
+                android:hint="Tag"
+                android:maxLength="20"
+                android:inputType="text" />
+            <Button
+                android:id="@+id/addBtn"
+                android:layout_marginRight="20dp"
+                android:layout_width="200dp"
+                android:textColor="@color/black"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:text="ADD"/>
+        </LinearLayout>
+        <ScrollView
+            android:layout_below="@id/relLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <android.support.design.chip.ChipGroup
+                android:id="@+id/chipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp">
+            </android.support.design.chip.ChipGroup>
+        </ScrollView>
+    </RelativeLayout>
+</LinearLayout>

@@ -13,8 +13,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import ripe.ripe.LeaderboardAdapter;
-import ripe.ripe.PersonDataModel;
+import ripe.ripe.Utils.LeaderboardAdapter;
+import ripe.ripe.Utils.PersonDataModel;
 import ripe.ripe.R;
 
 public class LeaderboardFragment extends Fragment {

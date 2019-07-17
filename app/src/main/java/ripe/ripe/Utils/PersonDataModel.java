@@ -1,5 +1,5 @@
 
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 public class PersonDataModel {
 

@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+
+import ripe.ripe.R;
 
 public class GridImageAdapter extends BaseAdapter {
 
