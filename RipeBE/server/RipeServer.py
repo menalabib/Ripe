@@ -28,7 +28,7 @@ TOP_TEN = 'top_ten'
 FULL_LEADERBOARD = 'full_leaderboard'
 
 # db constants
-client = MongoClient('mongodb://localhost:27017/', connect=False)
+client = MongoClient('mongodb://localhost:27017/')
 db = client['local']
 content_collection = db['content']
 user_collection = db['users']
@@ -56,6 +56,18 @@ def post_content():
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+    content = {
+        TITLE: request.form[TITLE],
+        UID: request.form[UID],
+        TAGS: request.form[TAGS],
+        UPLOADED_BY: request.form[UPLOADED_BY],
+        UPVOTES: request.form[UPVOTES],
+        DOWNVOTES: request.form[DOWNVOTES],
+        VIEWS: request.form[VIEWS],
+    }
+
+    object_id = content_collection.insert_one(content)
+
     # Create the BlockBlockService that is used to call the Blob service for the storage account.
     block_blob_service = BlockBlobService(account_name=constants.blob_consts['ACCOUNT_NAME'],
                                           account_key=constants.blob_consts['BLOB_ACCOUNT_KEY'])
@@ -71,18 +83,6 @@ def post_content():
     # Upload the created file, use local_file_name for the blob name.
     block_blob_service.create_blob_from_path(constants.blob_consts['CONTAINER_NAME'], uuid,
                                              os.path.join(constants.paths['UPLOAD_FOLDER'], filename))
-
-    content = {
-        TITLE: request.form[TITLE],
-        UID: request.form[UID],
-        TAGS: request.form[TAGS],
-        UPLOADED_BY: request.form[UPLOADED_BY],
-        UPVOTES: request.form[UPVOTES],
-        DOWNVOTES: request.form[DOWNVOTES],
-        VIEWS: request.form[VIEWS],
-    }
-
-    object_id = content_collection.insert(content)
 
     # List the blobs in the container.
     print("\nList blobs in the container")
@@ -110,7 +110,7 @@ def create_user():
         post_id = user_collection.insert(user)
 
         print(post_id)
-        return "User Added Successfully"
+        return jsonify(post_id)
     return InvalidUsage('User Already Exists', status_code=410)
 
 
@@ -128,7 +128,6 @@ def get_content_for_user(user_uid):
 
     for cont in user_content:
         if str(cont.get('_id')) not in return_list:
-            print(cont[TAGS])
             return_list.append(str(cont.get('_id')))
 
     return jsonify(return_list)
@@ -160,12 +159,19 @@ def get_leaderboard():
     return jsonify({TOP_TEN: top_ten, FULL_LEADERBOARD: full_leaderboard})
 
 
-# Interact with content
-@app.route('/get_content_by_id/<content_uuid>', methods=['GET'])
-def get_content(content_uuid):
-    content = [cont for cont in content_collection if (cont['id'] == content_uuid)]
+@app.route('/get_user_by_id/<user_uid>', methods=['GET'])
+def get_user_by_id(user_uid):
+    user = user_collection.find_one({UUID: user_uid})
 
-    # Create the BaaseBlockService that is used to call the Blob service for the storage account.
+    return jsonify(user)
+
+
+# Interact with content
+@app.route('/get_content_by_id/<content_uid>', methods=['GET'])
+def get_content(content_uid):
+    content = content_collection.find_one({UID: content_uid})
+
+    # Create the BaseBlockService that is used to call the Blob service for the storage account.
     block_blob_service = BaseBlobService(account_name='ripeblob', account_key=constants.blob_consts['BLOB_ACCOUNT_KEY'])
 
     if not os.path.exists(constants.paths['DOWNLOAD_FOLDER']):
@@ -174,6 +180,7 @@ def get_content(content_uuid):
     uid = request.form[UID]
     block_blob_service.get_blob_to_path(constants.blob_consts['CONTAINER_NAME'], uid,
                                         constants.paths['DOWNLOAD_FOLDER'])
+    return jsonify(content)
 
 
 if __name__ == "__main__":
