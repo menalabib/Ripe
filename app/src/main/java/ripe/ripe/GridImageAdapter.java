@@ -5,17 +5,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+
+import java.util.ArrayList;
 
 public class GridImageAdapter extends BaseAdapter {
 
     private Context context;
+    private int[] thumbIds;
 
-    public GridImageAdapter(Context c) {
+    public GridImageAdapter(Context c, int[] images) {
         context = c;
+        this.thumbIds = images;
+    }
+
+    private Context mContext;
+    private LayoutInflater mInflater;
+    private int layoutResource;
+    private String mAppend;
+    private ArrayList<String> imgURLs;
+
+    public GridImageAdapter(Context context, int layoutResource, String append, ArrayList<String> imgURLs) {
+        super();
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        this.layoutResource = layoutResource;
+        mAppend = append;
+        this.imgURLs = imgURLs;
     }
 
     @Override
@@ -23,10 +39,6 @@ public class GridImageAdapter extends BaseAdapter {
         return thumbIds.length;
     }
 
-    @Override
-    public Object getItem(int i) {
-        return null;
-    }
 
     @Override
     public long getItemId(int i) {
@@ -34,32 +46,27 @@ public class GridImageAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        ImageView imageView;
+    public Object getItem(int i) { return null; }
 
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
         if (view == null) {
-            LayoutInflater inflater = LayoutInflater.from(context);
+            final LayoutInflater inflater = LayoutInflater.from(context);
             view = inflater.inflate(R.layout.profile_image, null);
+            ImageView imageView = view.findViewById(R.id.imageView);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            final ViewHolder viewHolder = new ViewHolder(imageView);
+            view.setTag(viewHolder);
         }
-        imageView = view.findViewById(R.id.imageView);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        imageView.setImageResource(thumbIds[i]);
-        return imageView;
+        final ViewHolder viewHolder = (ViewHolder)view.getTag();
+        viewHolder.imageView.setImageResource(thumbIds[i]);
+        return view;
     }
 
-    private Integer[] thumbIds = {
-            R.drawable.leader_1_trav,
-            R.drawable.leader_2_ye,
-            R.drawable.leader_3_kenny,
-            R.drawable.leader_4_drake,
-            R.drawable.leader_5_rocky,
-            R.drawable.leader_6_rashad,
-            R.drawable.leader_7_skepta,
-            R.drawable.like_logo,
-            R.drawable.dislike_logo,
-            R.drawable.apple,
-            R.drawable.yeet,
-            R.drawable.fast,
-            R.drawable.help
-    };
+    private class ViewHolder {
+        private final ImageView imageView;
+        public ViewHolder(ImageView imageView) {
+            this.imageView = imageView;
+        }
+    }
 }

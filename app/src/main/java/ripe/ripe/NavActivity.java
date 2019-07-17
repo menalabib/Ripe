@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
+import ripe.ripe.NavFragments.CameraFragment;
 import ripe.ripe.NavFragments.FeedFragment;
+import ripe.ripe.NavFragments.GroupsFragment;
 import ripe.ripe.NavFragments.LeaderboardFragment;
 import ripe.ripe.NavFragments.ProfileFragment;
 
@@ -54,7 +56,11 @@ public class NavActivity extends AppCompatActivity implements BottomNavigationVi
             case R.id.navigation_leaderboard:
                 fragment = new LeaderboardFragment();
                 break;
+            case R.id.navigation_groups:
+                fragment = new GroupsFragment();
+                break;
             case R.id.navigation_upload:
+                fragment = new ShareFragment();
                 break;
         }
         return loadFragment(fragment);

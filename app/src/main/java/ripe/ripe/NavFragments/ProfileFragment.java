@@ -59,7 +59,7 @@ public class ProfileFragment extends Fragment {
         int imageWidth = gridWidth/NUM_GRID_COLUMNS;
         gridView.setColumnWidth(imageWidth);
 
-        GridImageAdapter adapter = new GridImageAdapter(this.getContext());
+        GridImageAdapter adapter = new GridImageAdapter(this.getContext(), thumbIds);
         gridView.setAdapter(adapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -81,4 +81,20 @@ public class ProfileFragment extends Fragment {
     private void getPostsCount(){
         mPostsCount = 20;
     }
+
+    private int[] thumbIds = {
+            R.drawable.leader_1_trav,
+            R.drawable.leader_2_ye,
+            R.drawable.leader_3_kenny,
+            R.drawable.leader_4_drake,
+            R.drawable.leader_5_rocky,
+            R.drawable.leader_6_rashad,
+            R.drawable.leader_7_skepta,
+            R.drawable.like_logo,
+            R.drawable.dislike_logo,
+            R.drawable.apple,
+            R.drawable.yeet,
+            R.drawable.fast,
+            R.drawable.help
+    };
 }

@@ -8,13 +8,17 @@
 
     <item
         android:id="@+id/navigation_upload"
-        android:icon="@drawable/ic_upload"
+        android:icon="@drawable/selector_upload"
         android:title="@string/title_upload" />
 
     <item
         android:id="@+id/navigation_leaderboard"
         android:icon="@drawable/selector_leaderboard"
         android:title="@string/title_leaderboard" />
+    <item
+        android:id="@+id/navigation_groups"
+        android:icon="@drawable/selector_groups"
+        android:title="@string/title_groups" />
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/selector_profile"
