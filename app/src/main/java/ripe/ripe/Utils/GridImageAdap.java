@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,11 +11,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
+
+import ripe.ripe.R;
 
 public class GridImageAdap extends ArrayAdapter<String>{
 

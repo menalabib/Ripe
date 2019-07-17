@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;

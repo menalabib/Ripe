@@ -1,4 +1,4 @@
-package ripe.ripe;
+package ripe.ripe.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public class FileSearch {
         File[] files = file.listFiles();
         for (File fil : files) {
             if(fil.isDirectory()) {
-                pathArray.add(fil.getAbsolutePath());
+                pathArray.add(0, fil.getAbsolutePath());
             }
         }
         return pathArray;
@@ -23,7 +23,7 @@ public class FileSearch {
         File[] files = file.listFiles();
         for (File fil : files) {
             if(fil.isFile()) {
-                pathArray.add(fil.getAbsolutePath());
+                pathArray.add(0, fil.getAbsolutePath());
             }
         }
         return pathArray;

@@ -6,11 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
-import ripe.ripe.NavFragments.CameraFragment;
 import ripe.ripe.NavFragments.FeedFragment;
-import ripe.ripe.NavFragments.GroupsFragment;
+import ripe.ripe.NavFragments.UploadFlow.GroupsFragment;
 import ripe.ripe.NavFragments.LeaderboardFragment;
 import ripe.ripe.NavFragments.ProfileFragment;
+import ripe.ripe.NavFragments.UploadFlow.ShareFragment;
 
 public class NavActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
