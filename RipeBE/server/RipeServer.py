@@ -182,6 +182,5 @@ def get_content(content_uid):
                                         constants.paths['DOWNLOAD_FOLDER'])
     return jsonify(content)
 
-
 if __name__ == "__main__":
     app.run(host='192.168.43.25')
