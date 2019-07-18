@@ -8,7 +8,7 @@ mainClassName = 'Ripe.Main'
 sourceSets {
     main {
         java {
-            srcDirs = ['.']
+            srcDirs = ['src']
         }
         resources {
             srcDir('content')

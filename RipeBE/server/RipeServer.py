@@ -58,7 +58,6 @@ def post_content():
 
     content = {
         TITLE: request.form[TITLE],
-        UID: request.form[UID],
         TAGS: request.form[TAGS],
         UPLOADED_BY: request.form[UPLOADED_BY],
         UPVOTES: request.form[UPVOTES],
@@ -90,6 +89,7 @@ def post_content():
     for blob in generator:
         print("\t Blob name: " + blob.name)
 
+    print(object_id)
     return str(object_id)
 
 
@@ -98,14 +98,12 @@ def create_user():
     user_id = request.form['id']
     if user_collection.find_one({'id': user_id}) is None:
         user = {
-            UUID: request.form[UUID],
             NAME: request.form[NAME],
             EMAIL: request.form[EMAIL],
             CONTENT_UPLOADED: [],
             SCORE: 0,
             SAVED_CONTENT: [],
-            VIEWED_CONTENT: [],
-            TAGS: [],
+            VIEWED_CONTENT: []
         }
         post_id = user_collection.insert(user)
 
@@ -162,7 +160,6 @@ def get_leaderboard():
 @app.route('/get_user_by_id/<user_uid>', methods=['GET'])
 def get_user_by_id(user_uid):
     user = user_collection.find_one({UUID: user_uid})
-
     return jsonify(user)
 
 
