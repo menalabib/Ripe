@@ -79,7 +79,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\RipePoster-1.2.1.jar;%APP_HOME%\lib\retrofit-2.6.0.jar;%APP_HOME%\lib\okhttp-4.0.1.jar;%APP_HOME%\lib\okio-2.2.2.jar;%APP_HOME%\lib\gson-2.8.5.jar;%APP_HOME%\lib\kotlin-stdlib-1.3.40.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.3.40.jar;%APP_HOME%\lib\annotations-13.0.jar
+set CLASSPATH=%APP_HOME%\lib\RipePoster-1.2.1.jar;%APP_HOME%\lib\converter-gson-2.6.0.jar;%APP_HOME%\lib\retrofit-2.6.0.jar;%APP_HOME%\lib\okhttp-4.0.1.jar;%APP_HOME%\lib\okio-2.2.2.jar;%APP_HOME%\lib\gson-2.8.5.jar;%APP_HOME%\lib\kotlin-stdlib-1.3.40.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.3.40.jar;%APP_HOME%\lib\annotations-13.0.jar
 
 @rem Execute RipePoster
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %RIPE_POSTER_OPTS%  -classpath "%CLASSPATH%" Ripe.Main %CMD_LINE_ARGS%

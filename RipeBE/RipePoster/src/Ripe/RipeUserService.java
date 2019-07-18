@@ -1,17 +1,21 @@
 package Ripe;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
-import retrofit2.http.Multipart;
-import retrofit2.http.POST;
+import retrofit2.http.*;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Part;
 
+import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RipeUserService {
 
@@ -34,6 +38,14 @@ public class RipeUserService {
                 @Part("name") RequestBody name,
                 @Part("email") RequestBody email
         );
+
+        @GET("get_user_by_id/{uuid}")
+        Call<ResponseBody> getUserById (
+                @Path("uuid") String uuid
+        );
+
+        @GET("get_leaderboard")
+        Call<ResponseBody> getLeaderboard ();
     }
 
     public void createUser(RipeUser ripeUser) {
@@ -56,6 +68,51 @@ public class RipeUserService {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 System.out.print("failed to make user");
+            }
+        });
+    }
+
+    public RipeUser getUserById(String uuid) {
+        Type ripeUserType = new TypeToken<RipeUser>(){}.getType();
+        RipeUser ripeUser = new RipeUser();
+
+        Call<ResponseBody> responseBodyCall = ripeService.getUserById(uuid);
+        responseBodyCall.enqueue(new Callback<ResponseBody> () {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    RipeUser ru = new Gson().fromJson(response.body().string(), ripeUserType);
+                    ripeUser.copy(ru);
+                } catch(Exception e) {
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.print("failed to get user");
+            }
+        });
+        return ripeUser;
+    }
+
+    public void getLeaderboard() {
+        Type leaderboardType = new TypeToken<Map<String, List<String>>>(){}.getType();
+
+
+        Call<ResponseBody> responseBodyCall = ripeService.getLeaderboard();
+        responseBodyCall.enqueue(new Callback<ResponseBody> () {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    Map<String, List<String>> leaders = new Gson().fromJson(response.body().string(), leaderboardType);
+                    System.out.println("got leaderboard");
+                } catch(Exception e) {
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.print("failed to get leaderboard");
             }
         });
     }

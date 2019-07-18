@@ -48,19 +48,48 @@ public class RipeContentService {
         Call<ResponseBody> getContentForUser(
                 @Path("uuid") String uuid
         );
+
+        @Multipart
+        @PUT("update_content_view/{userId}/{contentId}")
+        Call<ResponseBody> updateContentViews(
+                @Path("userId") String userId,
+                @Path("contentId") String contentId,
+                @Part("action") RequestBody action
+        );
     }
 
-    public void getContentForUser(RipeUser user) {
+    public void updateContentViews(String userId, String contentId, Integer vote) {
+        RequestBody action = RequestBody.create(MediaType.parse("multipart/form-data"), vote.toString());
+        Call<ResponseBody> response = ripeService.updateContentViews(userId, contentId, action);
+        response.enqueue(
+            new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    System.out.println("updated content view");
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    System.out.print("failed to update content view");
+                }
+            }
+        );
+    }
+
+    public List<String> getContentForUser(RipeUser user) {
         Call<ResponseBody> response = ripeService.getContentForUser(user.uuid);
+        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+        List<String> list = new ArrayList<>();
         response.enqueue(new Callback<ResponseBody> () {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 System.out.print(response.toString());
                 if(response.code() == 400) return;
                 try {
-                    Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-                    List<String> list = new Gson().fromJson(response.body().string(), listType);
-                    response.body().bytes();
+                    List<String> gson = new Gson().fromJson(response.body().string(), listType);
+                    for(String s: gson) {
+                        list.add(s);
+                    }
                 } catch (Exception e) {
                     System.out.println("No content return");
                 }
@@ -72,7 +101,11 @@ public class RipeContentService {
                 System.out.print("failed to get content");
             }
         });
+        return list;
+    }
 
+    public void getContent(String uuid) {
+        
     }
 
     public void uploadContent(Ripe.RipeContent ripeContent) throws Exception {
