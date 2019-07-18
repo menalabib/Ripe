@@ -1,5 +1,4 @@
-from server.RipeServer import app
-from mock import Mock, patch
+from src.server import app
 
 
 def before_all(context):

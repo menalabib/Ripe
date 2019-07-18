@@ -1,11 +1,13 @@
 import os
-from server import constants
+
 from azure.storage.blob import BlockBlobService, PublicAccess
 from azure.storage.blob.baseblobservice import BaseBlobService
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from werkzeug.exceptions import BadRequest
 from werkzeug.utils import secure_filename
 
+from server import constants
 from server.InvalidUsage import InvalidUsage
 
 # data constants
@@ -28,7 +30,7 @@ TOP_TEN = 'top_ten'
 FULL_LEADERBOARD = 'full_leaderboard'
 
 # db constants
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('127.0.0.1', 27017, connect=False)
 db = client['local']
 content_collection = db['content']
 user_collection = db['users']
@@ -95,38 +97,49 @@ def post_content():
 
 @app.route('/create_user', methods=['POST'])
 def create_user():
-    user_id = request.form['id']
-    if user_collection.find_one({'id': user_id}) is None:
-        user = {
-            NAME: request.form[NAME],
-            EMAIL: request.form[EMAIL],
-            CONTENT_UPLOADED: [],
-            SCORE: 0,
-            SAVED_CONTENT: [],
-            VIEWED_CONTENT: []
-        }
-        post_id = user_collection.insert(user)
+    user = {
+        NAME: request.form[NAME],
+        EMAIL: request.form[EMAIL],
+        CONTENT_UPLOADED: [],
+        SCORE: 0,
+        SAVED_CONTENT: [],
+        VIEWED_CONTENT: [],
+        TAGS: [],
+    }
+    post_id = user_collection.insert(user)
+    user_collection.update_one({EMAIL: request.form[EMAIL]}, {'$set': {UUID: str(post_id)}})
 
-        print(post_id)
-        return jsonify(post_id)
-    return InvalidUsage('User Already Exists', status_code=410)
+    print(str(post_id))
+    return jsonify(str(post_id))
 
 
 # get content for user
 @app.route('/get_content_for_user/<user_uid>', methods=['GET'])
 def get_content_for_user(user_uid):
-    user_dict = user_collection.find_one({UID: user_uid})
+    user_dict = user_collection.find_one({UUID: user_uid})
+    if user_dict is None:
+        raise BadRequest('User Not Found!')
 
-    user_tags = user_dict['tags']
+    user_tags = user_dict[TAGS]
+    viewed_content = user_dict[VIEWED_CONTENT]
+    content_uploaded = user_dict[CONTENT_UPLOADED]
     user_content = []
     return_list = []
 
     for tag in user_tags:
         user_content += list(content_collection.find({TAGS: tag}))
 
-    for cont in user_content:
-        if str(cont.get('_id')) not in return_list:
-            return_list.append(str(cont.get('_id')))
+    for user_cont in user_content:
+        if str(user_cont.get('_id')) not in return_list and str(user_cont.get('_id')) not in viewed_content \
+                and str(user_cont.get('_id')) not in content_uploaded:
+            return_list.append(str(user_cont.get('_id')))
+
+    if return_list is None:
+        for all_cont in list(content_collection.find()):
+            if all_cont not in viewed_content:
+                return_list.append()
+
+    print(return_list)
 
     return jsonify(return_list)
 
@@ -153,14 +166,13 @@ def get_leaderboard():
     leaderboard = leaderboard_collection.find_one()
     top_ten = leaderboard[TOP_TEN]
     full_leaderboard = leaderboard[FULL_LEADERBOARD]
-    # TODO: TEST
     return jsonify({TOP_TEN: top_ten, FULL_LEADERBOARD: full_leaderboard})
 
 
 @app.route('/get_user_by_id/<user_uid>', methods=['GET'])
 def get_user_by_id(user_uid):
     user = user_collection.find_one({UUID: user_uid})
-    return jsonify(user)
+    return jsonify(str(user))
 
 
 # Interact with content
@@ -178,6 +190,7 @@ def get_content(content_uid):
     block_blob_service.get_blob_to_path(constants.blob_consts['CONTAINER_NAME'], uid,
                                         constants.paths['DOWNLOAD_FOLDER'])
     return jsonify(content)
+
 
 if __name__ == "__main__":
     app.run(host='192.168.43.25')

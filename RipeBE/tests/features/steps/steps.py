@@ -4,7 +4,7 @@ from io import BytesIO
 from behave import *
 from nose.tools import assert_equals, assert_not_equals
 
-from server.RipeServer import user_collection
+from src.server import user_collection
 
 USER_INFO = {
     'id': 'user12345',
