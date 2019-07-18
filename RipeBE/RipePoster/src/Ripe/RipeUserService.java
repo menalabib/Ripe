@@ -2,6 +2,7 @@ package Ripe;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -29,7 +30,7 @@ public class RipeUserService {
     private interface RipeService {
         @Multipart
         @POST("create_user")
-        Call<String> createUser (
+        Call<ResponseBody> createUser (
                 @Part("name") RequestBody name,
                 @Part("email") RequestBody email
         );
@@ -40,16 +41,21 @@ public class RipeUserService {
 
         RequestBody email = RequestBody.create(MediaType.parse("multipart/form-data"), ripeUser.email);
 
-        Call<String> responseBodyCall = ripeService.createUser(name, email);
-        responseBodyCall.enqueue(new Callback<String> () {
+        Call<ResponseBody> responseBodyCall = ripeService.createUser(name, email);
+        responseBodyCall.enqueue(new Callback<ResponseBody> () {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                System.out.print(response.toString());
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    ripeUser.uuid = response.body().string().replace("\"", "");
+                    System.out.println(ripeUser.uuid);
+                } catch(Exception e) {
+                    System.out.print("no uuid found");
+                }
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                System.out.print("failed to get leaderboard");
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.print("failed to make user");
             }
         });
     }

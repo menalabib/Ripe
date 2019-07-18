@@ -15,14 +15,20 @@ public class Main {
 
         // get content from user id
 
+        RipeContentService ripeContentService = new RipeContentService(new URL("http://10.92.1.68:5000/"));
+        RipeUser ru = new RipeUser(null, null, null, 0, null , null, "user12345");
+        ripeContentService.getContentForUser(ru);
+
         // get leaderboard
 //        RipeLeaderboardService ripeLeaderboardService = new RipeLeaderboardService(new URL("http://10.92.1.58:5000/"));
 //        ripeLeaderboardService.getLeaderboard();
 
         // user interactions
-        RipeUserService ripeUserService = new RipeUserService(new URL("http://10.92.1.58:5000/"));
-        ripeUserService.createUser(new RipeUser("RayRay", "ray@gmail.com", null, null, null, null));
-
+//        RipeUserService ripeUserService = new RipeUserService(new URL("http://10.92.1.58:5000/"));
+//        RipeUserService ripeUserService = new RipeUserService(new URL("http://10.92.1.68:5000/"));
+//        RipeUser ripeUser = new RipeUser("RayRay", "ray@gmail.com", null, null, null, null, "");
+//        ripeUserService.createUser(ripeUser);
+        //System.out.println(ripeUser.uuid);
 
     }
 
