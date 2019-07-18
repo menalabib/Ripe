@@ -1,8 +1,8 @@
 
 # local constants
 paths = {
-    'UPLOAD_FOLDER': './uploaded_pics',
-    'DOWNLOAD_FOLDER': './downloaded_pics'
+    'UPLOAD_FOLDER': './uploaded_content',
+    'DOWNLOAD_FOLDER': './downloaded_content'
 }
 
 # blob constants

@@ -11,7 +11,7 @@ sourceSets {
             srcDirs = ['.']
         }
         resources {
-            srcDir('images')
+            srcDir('content')
         }
     }
 }
