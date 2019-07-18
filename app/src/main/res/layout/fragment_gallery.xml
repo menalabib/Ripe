@@ -47,7 +47,6 @@
             android:stretchMode="none"
             android:gravity="center"
             android:layout_marginTop="1dp">
-
         </GridView>
     </LinearLayout>
 
