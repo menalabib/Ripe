@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ripe.ripe.NavFragments.UploadFlow.GroupsFragment">
+    tools:context=".NavFragments.Groups.GroupsFragment">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

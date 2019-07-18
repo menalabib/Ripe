@@ -1,4 +1,4 @@
-package ripe.ripe.NavFragments.UploadFlow;
+package ripe.ripe.NavFragments.Groups;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -19,12 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import ripe.ripe.NavFragments.UploadFlow.Up.ShareFragment;
 import ripe.ripe.R;
 
 public class GroupsFragment extends Fragment {

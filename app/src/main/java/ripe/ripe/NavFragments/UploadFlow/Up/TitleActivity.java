@@ -1,4 +1,4 @@
-package ripe.ripe.NavFragments.UploadFlow;
+package ripe.ripe.NavFragments.UploadFlow.Up;
 
 import android.content.Intent;
 import android.database.Cursor;

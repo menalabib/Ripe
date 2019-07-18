@@ -1,4 +1,4 @@
-package ripe.ripe.NavFragments.UploadFlow;
+package ripe.ripe.NavFragments.UploadFlow.Up;
 
 import android.Manifest;
 import android.content.Context;
