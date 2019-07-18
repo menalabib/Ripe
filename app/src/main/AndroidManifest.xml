@@ -14,9 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NavFragments.UploadFlow.TagsActivity"></activity>
+        <activity android:name=".NavFragments.Groups.GroupGalleryActivity"></activity>
+        <activity android:name=".NavFragments.Groups.SwipeGroupActivity" />
+        <activity android:name=".NavFragments.UploadFlow.Up.TagsActivity" />
         <activity
-            android:name=".NavFragments.UploadFlow.TitleActivity"
+            android:name=".NavFragments.UploadFlow.Up.TitleActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".NavActivity"

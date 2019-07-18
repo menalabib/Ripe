@@ -1,16 +1,14 @@
-package ripe.ripe.NavFragments;
+package ripe.ripe.NavFragments.Groups;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -24,25 +22,21 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.util.ArrayList;
+
+import ripe.ripe.NavActivity;
 import ripe.ripe.R;
-import ripe.ripe.Utils.GridImageAdapter;
+import ripe.ripe.Utils.FilePaths;
+import ripe.ripe.Utils.FileSearch;
+import ripe.ripe.Utils.GridImageAdap;
 
-public class ProfileFragment extends Fragment {
-    private static final String TAG = "ProfileFragment";
-    private static final int NUM_GRID_COLUMNS = 3;
+public class GroupGalleryActivity extends AppCompatActivity {
 
-    //widgets
-    private TextView mPosts, mFollowers, mFollowing, mDescription;
-    private ImageView mProfilePhoto;
-    private GridView gridView;
-    private Context mContext;
+    ImageView backArrowIV;
+    GridView gridView;
+    private ArrayList<String> directories;
+    private String selectedImage;
 
-    //vars
-    private int mFollowersCount = 0;
-    private int mFollowingCount = 0;
-    private int mPostsCount = 0;
-
-    //cardView vars
     public RelativeLayout parentView;
     int windowWidth;
     int windowHeight;
@@ -53,85 +47,84 @@ public class ProfileFragment extends Fragment {
     ProgressBar mProgressBar;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        mPosts = (TextView) view.findViewById(R.id.videos_num);
-        mFollowers = (TextView) view.findViewById(R.id.score_num);
-        mFollowing = (TextView) view.findViewById(R.id.views_num);
-        gridView = (GridView) view.findViewById(R.id.gridView);
-        mContext = getActivity();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try { this.getSupportActionBar().hide(); }
+        catch (NullPointerException e){}
+        setContentView(R.layout.activity_group_gallery);
+
+        backArrowIV = findViewById(R.id.ivBackArrow);
+        gridView = findViewById(R.id.gridView);
+
+        backArrowIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(GroupGalleryActivity.this, NavActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+            }
+        });
+
 
         // Set up screen size values
         DisplayMetrics displaymetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        this.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         windowHeight = displaymetrics.heightPixels;
         windowWidth = displaymetrics.widthPixels;
         screenCenter = windowWidth / 2;
-        context = getContext();
-        parentView = view.findViewById(R.id.relLayout2);
+        context = this;
+        parentView = findViewById(R.id.relLayout2);
 
-        setupGridView();
-        getFollowersCount();
-        getFollowingCount();
-        getPostsCount();
-        return view;
+        init();
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent i = new Intent(GroupGalleryActivity.this, NavActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
     }
 
-    private void setupGridView(){
-        Log.d(TAG, "setupGridView: Setting up image grid.");
+    private void init() {
+        FilePaths filePaths = new FilePaths();
 
-        //setup our image grid
+        if(FileSearch.getDirectoryPaths(filePaths.PICTURES) != null) {
+            directories = FileSearch.getDirectoryPaths(filePaths.PICTURES);
+        }
+        directories.add(filePaths.CAMERA);
+
+        final ArrayList<String> directoryNames = new ArrayList<>();
+        for (String dir : directories) {
+            directoryNames.add(dir.substring(dir.lastIndexOf("/") + 1));
+        }
+
+        setupGridView(directories.get(0));
+    }
+
+    private void setupGridView(String selectedDirectory) {
+        final ArrayList<String> imgURLS = FileSearch.getFilePaths(selectedDirectory);
         int gridWidth = getResources().getDisplayMetrics().widthPixels;
-        int imageWidth = gridWidth/NUM_GRID_COLUMNS;
+        int imageWidth = gridWidth/3;
         gridView.setColumnWidth(imageWidth);
 
-        GridImageAdapter adapter = new GridImageAdapter(this.getContext(), thumbIds);
-        gridView.setAdapter(adapter);
+        GridImageAdap gridImageAdapter = new GridImageAdap(this, R.layout.layout_grid_imageview, "file:/", imgURLS);
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
+        if (imgURLS.size() != 0) {
+            gridView.setAdapter(gridImageAdapter);
+        }
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                createCard(getResources().getDrawable(thumbIds[position]));
-                Log.e("IMAGE SELECTED", "Parent: " + parent + " View " + view + " Position " + position + " id " + id);
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                selectedImage = imgURLS.get(i);
+                createCard(selectedImage);
             }
         });
     }
 
-    private void getFollowersCount(){
-        mFollowersCount = 45;
-    }
-
-    private void getFollowingCount(){
-        mFollowingCount = 50;
-    }
-
-    private void getPostsCount(){
-        mPostsCount = 20;
-    }
-
-    private int[] thumbIds = {
-            R.drawable.leader_1_trav,
-            R.drawable.leader_2_ye,
-            R.drawable.leader_3_kenny,
-            R.drawable.leader_4_drake,
-            R.drawable.leader_5_rocky,
-            R.drawable.leader_6_rashad,
-            R.drawable.leader_7_skepta,
-            R.drawable.like_logo,
-            R.drawable.dislike_logo,
-            R.drawable.apple,
-            R.drawable.yeet,
-            R.drawable.fast,
-            R.drawable.help
-    };
-
-    public void createCard(Drawable selectedImage) {
-        LayoutInflater inflate = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public void createCard(String selectedImage) {
+        LayoutInflater inflate = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View containerView = inflate.inflate(R.layout.card_view, parentView, false);
         RelativeLayout relativeLayoutContainer = containerView.findViewById(R.id.relative_container);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -148,12 +141,11 @@ public class ProfileFragment extends Fragment {
         dislikeIcon.setImageAlpha(0);
 
         // Set card contents
-        //TODO: fix this string
-        titleTextView.setText("String");
+        titleTextView.setText(selectedImage);
 
         videoView.setAlpha(0);
         imageView.setBackgroundColor(getResources().getColor(R.color.black));
-        imageView.setImageDrawable(selectedImage);
+        setImage(selectedImage,imageView,"file:/");
 
         // Touch listener on the image layout to swipe image right or left.
         //noinspection AndroidLintClickableViewAccessibility
@@ -200,5 +192,32 @@ public class ProfileFragment extends Fragment {
             }
         });
         parentView.addView(containerView, 0);
+    }
+
+    private void setImage(String imgURL, ImageView imageView, String append) {
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
+
+        imageLoader.displayImage(append + imgURL, imageView, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                mProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 }
