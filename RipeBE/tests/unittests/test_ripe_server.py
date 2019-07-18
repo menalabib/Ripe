@@ -1,10 +1,21 @@
 import ast
 
-from server.RipeServer import app
+from src.server.RipeServer import app, leaderboard_collection
 
 
-class TestRipeServer:
-    def __init__(self):
+USER_INFO = {
+    'id': 'user12345',
+    'name': 'John Doe',
+    'email': 'jdoe@email.com',
+    'videos_uploaded': [],
+    'score': 0,
+    'saved_videos': [],
+    'tags': [],
+}
+
+
+class TestRipeServer(object):
+    def setup(self):
         self.app = app.test_client()
 
     def test_get_content_for_user(self):
@@ -26,7 +37,15 @@ class TestRipeServer:
         assert response.status_code is 200
 
     def test_get_leaderboard(self):
+        leaderboard_collection.insert_one({'top_ten': ['user12345', 'user6789'], 'full_leaderboard': ['user12345', 'user6789']})
+
         response = self.app.get('/get_leaderboard')
         leaderboard = response.data.decode('utf-8')
         print(leaderboard)
+        assert response.status_code is 200
+
+    def test_create_user(self):
+        response = self.app.post('/create_user', data=USER_INFO)
+        user_id = response.data.decode('utf-8')
+        print(user_id)
         assert response.status_code is 200
