@@ -108,9 +108,7 @@ public class RipeContentService {
         // Request Data
         RequestBody title = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.title);
 
-        RequestBody uid = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.uuid.toString());
-
-        RequestBody tags = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.tags);
+        RequestBody uid = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.uuid);
 
         RequestBody ub = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.uploaded_by);
 
@@ -119,6 +117,8 @@ public class RipeContentService {
         RequestBody dv = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.downvotes.toString());
 
         RequestBody views = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.views.toString());
+
+        RequestBody tags = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.splitTags());
 
         // Getting file info
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.file);
