@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -34,7 +35,7 @@ public class LoginActivity extends Activity {
     private CallbackManager callbackManager;
     private String name;
     private String email;
-    private String image;
+    private Button btn_fb_login;
     public static final String FB_NAME = "com.example.ripe.name";
     public static final String FB_EMAIL = "com.example.ripe.email";
     public static final String FB_IMAGE = "com.example.ripe.image";
@@ -46,15 +47,14 @@ public class LoginActivity extends Activity {
 
         //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.activity_login);
+
         callbackManager = CallbackManager.Factory.create();
 
         if(isLoggedIn()){
             Intent intent = new Intent(LoginActivity.this, NavActivity.class);
             intent.putExtra(FB_NAME, name);
             intent.putExtra(FB_EMAIL, email);
-            intent.putExtra(FB_IMAGE, image);
             finish();
             startActivity(intent);
         }
@@ -63,15 +63,7 @@ public class LoginActivity extends Activity {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        Log.d("Success", "Login");
-                        AccessToken accessToken = loginResult.getAccessToken();
-                        useLoginInformation(accessToken);
-                        Intent intent = new Intent(LoginActivity.this, NavActivity.class);
-                        intent.putExtra(FB_NAME, name);
-                        intent.putExtra(FB_EMAIL, email);
-                        intent.putExtra(FB_IMAGE, image);
-                        finish();
-                        startActivity(intent);
+
                     }
 
                     @Override
@@ -85,7 +77,7 @@ public class LoginActivity extends Activity {
                     }
                 });
 
-        Button btn_fb_login = (Button) findViewById(R.id.btn_fb_login);
+        btn_fb_login = (Button) findViewById(R.id.btn_fb_login);
 
         btn_fb_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,40 +87,49 @@ public class LoginActivity extends Activity {
         });
     }
 
+    AccessTokenTracker tokenTracker = new AccessTokenTracker() {
+        @Override
+        protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+            if (currentAccessToken == null) {
+                // user is logged out
+            }
+            else {
+                Intent intent = new Intent(LoginActivity.this, NavActivity.class);
+                intent.putExtra(FB_NAME, name);
+                intent.putExtra(FB_EMAIL, email);
+                startActivity(intent);
+            }
+        }
+    };
+
+    private void loadProfile(AccessToken accessToken) {
+        GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+                String firstName = "";
+                String lastName = "";
+                String emailA = "";
+                try {
+                    firstName = object.getString("first_name");
+                    lastName = object.getString("last_name");
+                    emailA = object.getString("email");
+                }
+                catch (JSONException e ) {}
+                name = firstName + " " + lastName;
+                email = emailA;
+            }
+        });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "first_name, last_name, email");
+        request.setParameters(parameters);
+        request.executeAsync();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void useLoginInformation(AccessToken accessToken) {
-        /**
-         Creating the GraphRequest to fetch user details
-         1st Param - AccessToken
-         2nd Param - Callback (which will be invoked once the request is successful)
-         **/
-        GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
-            //OnCompleted is invoked once the GraphRequest is successful
-            @Override
-            public void onCompleted(JSONObject object, GraphResponse response) {
-                try {
-                    name = object.getString("name");
-                    email = object.getString("email");
-                    image = object.getJSONObject("picture").getJSONObject("data").getString("url");
-                    System.out.println(name);
-                    System.out.println(email);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        // We set parameters to the GraphRequest using a Bundle.
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email,picture.width(200)");
-        request.setParameters(parameters);
-        // Initiate the GraphRequest
-        request.executeAsync();
     }
 
     public boolean isLoggedIn() {
