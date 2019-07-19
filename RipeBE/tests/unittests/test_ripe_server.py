@@ -37,8 +37,6 @@ class TestRipeServer(object):
         assert response.status_code is 200
 
     def test_get_leaderboard(self):
-        leaderboard_collection.insert_one({'top_ten': ['user12345', 'user6789'], 'full_leaderboard': ['user12345', 'user6789']})
-
         response = self.app.get('/get_leaderboard')
         leaderboard = response.data.decode('utf-8')
         print(leaderboard)

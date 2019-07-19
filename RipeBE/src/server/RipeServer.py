@@ -1,7 +1,6 @@
 import os
 
 from azure.storage.blob import BlockBlobService, PublicAccess
-from azure.storage.blob.baseblobservice import BaseBlobService
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from werkzeug.exceptions import BadRequest
@@ -28,6 +27,9 @@ SAVED_CONTENT = 'saved_content'
 VIEWED_CONTENT = 'viewed_content'
 TOP_TEN = 'top_ten'
 FULL_LEADERBOARD = 'full_leaderboard'
+MEMBERS = 'members'
+GROUPS = 'groups'
+GALLERY = 'gallery'
 
 # db constants
 client = MongoClient('127.0.0.1', 27017, connect=False)
@@ -35,6 +37,8 @@ db = client['local']
 content_collection = db['content']
 user_collection = db['users']
 leaderboard_collection = db['leaderboard']
+group_collection = db['groups']
+group_content_collection = db['group_content']
 
 # flask configurations
 app = Flask(__name__)
@@ -57,17 +61,20 @@ def post_content():
     file = request.files['file']
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    tags = request.form[TAGS].split(",")
 
     content = {
         TITLE: request.form[TITLE],
-        TAGS: request.form[TAGS],
+        TAGS: tags,
         UPLOADED_BY: request.form[UPLOADED_BY],
-        UPVOTES: request.form[UPVOTES],
-        DOWNVOTES: request.form[DOWNVOTES],
-        VIEWS: request.form[VIEWS],
+        UPVOTES: 0,
+        DOWNVOTES: 0,
+        VIEWS: 0,
     }
 
-    object_id = content_collection.insert_one(content)
+    post_id = content_collection.insert_one(content).inserted_id
+
+    content_collection.update_one({'_id': post_id}, {'$set': {UID: str(post_id)}})
 
     # Create the BlockBlockService that is used to call the Blob service for the storage account.
     block_blob_service = BlockBlobService(account_name=constants.blob_consts['ACCOUNT_NAME'],
@@ -79,10 +86,8 @@ def post_content():
     # Set the permission so the blobs are public.
     block_blob_service.set_container_acl(constants.blob_consts['CONTAINER_NAME'], public_access=PublicAccess.Container)
 
-    uuid = request.form[UID]
-
     # Upload the created file, use local_file_name for the blob name.
-    block_blob_service.create_blob_from_path(constants.blob_consts['CONTAINER_NAME'], uuid,
+    block_blob_service.create_blob_from_path(constants.blob_consts['CONTAINER_NAME'], str(post_id),
                                              os.path.join(constants.paths['UPLOAD_FOLDER'], filename))
 
     # List the blobs in the container.
@@ -91,8 +96,8 @@ def post_content():
     for blob in generator:
         print("\t Blob name: " + blob.name)
 
-    print(object_id)
-    return str(object_id)
+    print(post_id)
+    return jsonify(str(post_id))
 
 
 @app.route('/create_user', methods=['POST'])
@@ -152,44 +157,143 @@ def update_content_views(user_uid, content_uid):
         if request.form[ACTION] == '0':
             content_collection.update_one({UID: content_uid}, {'$inc': {DOWNVOTES: 1}})
         elif request.form[ACTION] == '1':
+            # TODO Update user tags
             content_collection.update_one({UID: content_uid}, {'$inc': {UPVOTES: 1}})
             user_collection.update_one({CONTENT_UPLOADED: content_uid}, {'$inc': {SCORE: 1}})
             user_collection.update_one({UUID: user_uid}, {'$push': {SAVED_CONTENT: content_uid}})
 
         return "Content Updated!"
 
-    return InvalidUsage('Cannot find action to update...', status_code=410)
+    raise BadRequest('Action Not Found!')
 
 
 @app.route('/get_leaderboard', methods=['GET'])
 def get_leaderboard():
+    # TODO Need to actually sort the leaderboard
     leaderboard = leaderboard_collection.find_one()
+    if leaderboard is None:
+        raise BadRequest('Leaderboard Not Found!')
     top_ten = leaderboard[TOP_TEN]
     full_leaderboard = leaderboard[FULL_LEADERBOARD]
+    print({TOP_TEN: top_ten, FULL_LEADERBOARD: full_leaderboard})
     return jsonify({TOP_TEN: top_ten, FULL_LEADERBOARD: full_leaderboard})
 
 
 @app.route('/get_user_by_id/<user_uid>', methods=['GET'])
 def get_user_by_id(user_uid):
-    user = user_collection.find_one({UUID: user_uid})
-    return jsonify(str(user))
+    user_dict = user_collection.find_one({UUID: user_uid})
+    if user_dict is None:
+        raise BadRequest('User Not Found!')
+    user_dict['uuid'] = str(user_dict.get('_id'))
+    print(user_dict['_id'])
+    del user_dict['_id']
+    return jsonify(user_dict)
 
 
 # Interact with content
 @app.route('/get_content_by_id/<content_uid>', methods=['GET'])
-def get_content(content_uid):
-    content = content_collection.find_one({UID: content_uid})
+def get_content_by_id(content_uid):
+    content_dict = content_collection.find_one({UID: content_uid})
+    if content_dict is None:
+        raise BadRequest('Content Not Found!')
 
-    # Create the BaseBlockService that is used to call the Blob service for the storage account.
-    block_blob_service = BaseBlobService(account_name='ripeblob', account_key=constants.blob_consts['BLOB_ACCOUNT_KEY'])
+    return jsonify(content_dict)
 
-    if not os.path.exists(constants.paths['DOWNLOAD_FOLDER']):
-        os.makedirs(constants.paths['DOWNLOAD_FOLDER'])
 
-    uid = request.form[UID]
-    block_blob_service.get_blob_to_path(constants.blob_consts['CONTAINER_NAME'], uid,
-                                        constants.paths['DOWNLOAD_FOLDER'])
-    return jsonify(content)
+@app.route('/create_group/<user_uid>', methods=['POST'])
+def create_group(user_uid):
+    group = {
+        MEMBERS: [user_uid],
+        CONTENT_UPLOADED: [],
+        GALLERY: []
+    }
+    uid = group_collection.insert_one(group).inserted_id
+    group_id = str(uid)[-5:]
+    group_collection.update_one({'_id': uid}, {'$set': {UID: group_id}})
+    return jsonify(group_id)
+
+
+@app.route('/join_group/<user_uid>/<group_uid>', methods=['PUT'])
+def join_group(user_uid, group_uid):
+    group_dict = group_collection.find_one({UID: group_uid})
+    if group_dict is None:
+        raise BadRequest('Invalid Group ID')
+    if user_uid in group_dict[MEMBERS]:
+        raise BadRequest('User already in group!')
+    group_collection.update_one({UID: group_uid}, {'$push': {MEMBERS: user_uid}})
+    return "Group members updated!"
+
+
+@app.route('/post_to_group/<group_uid>', methods=['POST'])
+def post_to_group(group_uid):
+    if not os.path.exists(constants.paths['UPLOAD_FOLDER']):
+        os.makedirs(constants.paths['UPLOAD_FOLDER'])
+
+    file = request.files['file']
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    content = {
+        GROUPS: group_uid,
+        UPVOTES: 0,
+        VIEWS: 0,
+    }
+
+    post_id = group_content_collection.insert_one(content).inserted_id
+    group_content_collection.update_one({'_id': post_id}, {'$set': {UID: str(post_id)}})
+    group_collection.update_one({UID: group_uid}, {'$push': {CONTENT_UPLOADED: str(post_id)}})
+
+    # Create the BlockBlockService that is used to call the Blob service for the storage account.
+    block_blob_service = BlockBlobService(account_name=constants.blob_consts['ACCOUNT_NAME'],
+                                          account_key=constants.blob_consts['BLOB_ACCOUNT_KEY'])
+    block_blob_service.create_container(constants.blob_consts['CONTAINER_NAME'])
+    block_blob_service.set_container_acl(constants.blob_consts['CONTAINER_NAME'], public_access=PublicAccess.Container)
+    block_blob_service.create_blob_from_path(constants.blob_consts['CONTAINER_NAME'], str(post_id),
+                                             os.path.join(constants.paths['UPLOAD_FOLDER'], filename))
+
+    print(post_id)
+    return jsonify(str(post_id))
+
+
+@app.route('/get_group_content/<user_uid>/<group_uid>', methods=['GET'])
+def get_group_content(user_uid, group_uid):
+    return_list = []
+    group_dict = group_collection.find_one({UID: group_uid})
+    if group_dict is None:
+        raise BadRequest('Invalid Group ID')
+    group_content = group_dict[CONTENT_UPLOADED]
+    user_dict = user_collection.find_one({UUID: user_uid})
+    if user_dict is None:
+        raise BadRequest('Invalid User ID')
+    viewed_content = user_dict[VIEWED_CONTENT]
+    for content in group_content:
+        if content not in viewed_content:
+            return_list.append(content)
+    return jsonify(return_list)
+
+
+@app.route('/update_group_content_views/<user_uid>/<content_uid>', methods=['PUT'])
+def update_group_content_views(user_uid, content_uid):
+    content_dict = group_content_collection.find_one({UID: content_uid})
+    if ACTION in request.form and content_dict is not None:
+        group_id = content_dict[GROUPS]
+        user_collection.update_one({UUID: user_uid}, {'$push': {VIEWED_CONTENT: content_uid}})
+        group_content_collection.update_one({UID: content_uid}, {'$inc': {VIEWS: 1}})
+        if request.form[ACTION] == '1':
+            content_collection.update_one({UID: content_uid}, {'$inc': {UPVOTES: 1}})
+        if content_dict[UPVOTES] > content_dict[VIEWS]/2:
+            group_collection.update_one({UID: group_id}, {'$push': {GALLERY: content_uid}})
+        return "Content Updated!"
+    raise BadRequest('Action Not Found!')
+
+
+@app.route('/get_gallery/<group_id>', methods=['GET'])
+def get_gallery(group_id):
+    group_dict = group_collection.find_one({UID: group_id})
+    if group_dict is None:
+        raise BadRequest('Invalid Group ID')
+    gallery = group_dict[GALLERY]
+    return jsonify(gallery)
 
 
 if __name__ == "__main__":
