@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Main {
 
     private void uploadPic() throws Exception {
-        String host = "http://10.32.12.22:5000";
+        String host = "http://192.168.43.25:5000";
         // upload pic
         ArrayList<String> tags = new ArrayList<>();
         tags.add("funny");
@@ -27,8 +27,8 @@ public class Main {
 //        ripeContentService.getContentForUser(ru);
 
         // get leaderboard
-//        RipeUserService ripeUserService = new RipeUserService(new URL("http://10.92.1.68:5000/"));
-//        ripeUserService.getLeaderboard();
+        RipeUserService ripeUserService = new RipeUserService(new URL(host));
+        ripeUserService.getLeaderboard();
 
         // user interactions
 //        RipeUserService ripeUserService = new RipeUserService(new URL("http://10.92.1.58:5000/"));
@@ -49,7 +49,7 @@ public class Main {
         //ripeGroupService.postToGroup("7daad", file);
         //ripeGroupService.getGroupContent("user12345", "7daad");
         //ripeGroupService.updateGroupContentView("user12345", "content456", 1 );
-        ripeGroupService.getGallery("7daad");
+//        ripeGroupService.getGallery("7daad");
 
     }
 

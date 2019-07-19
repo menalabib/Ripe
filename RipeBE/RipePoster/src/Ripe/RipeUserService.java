@@ -13,6 +13,8 @@ import retrofit2.Response;
 
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +85,7 @@ public class RipeUserService {
                     RipeUser ru = new Gson().fromJson(response.body().string(), ripeUserType);
                     ripeUser.copy(ru);
                 } catch(Exception e) {
+
                 }
             }
 
@@ -95,17 +98,21 @@ public class RipeUserService {
     }
 
     public void getLeaderboard() {
-        Type leaderboardType = new TypeToken<Map<String, List<String>>>(){}.getType();
+        Type leaderboardType = new TypeToken<List<List<String>>>(){}.getType();
 
-
+        List<List<String>> leaderBoard = new ArrayList<>();
         Call<ResponseBody> responseBodyCall = ripeService.getLeaderboard();
         responseBodyCall.enqueue(new Callback<ResponseBody> () {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
-                    Map<String, List<String>> leaders = new Gson().fromJson(response.body().string(), leaderboardType);
+                    List<List<String>> leaders = new Gson().fromJson(response.body().string(), leaderboardType);
+                    for(List<String> s : leaders) {
+                        leaderBoard.add(s);
+                    }
                     System.out.println("got leaderboard");
                 } catch(Exception e) {
+                    System.out.println("failed to find leaderboard in responsebody");
                 }
             }
 
