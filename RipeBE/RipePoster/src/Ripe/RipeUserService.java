@@ -13,7 +13,6 @@ import retrofit2.Response;
 
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

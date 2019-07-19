@@ -1,11 +1,13 @@
 package Ripe;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidKeyException;
 
 public class Main {
 
-    private void uploadPic() throws Exception {
-
+    private void uploadPic() throws InvalidKeyException, MalformedURLException, IOException {
         // upload pic
 //        File file = new File(getClass().getClassLoader().getResource("test.gif").getFile());
 //        RipeContent ripeContent = new RipeContent("title", "2", "ur mom", "Raymond", 10, 15, 1000, file);
@@ -13,15 +15,13 @@ public class Main {
         //upvote
         //ripeContentService.updateContentViews("user12345", "content123", 1);
         //downvote
-        ripeContentService.updateContentViews("user12345", "content123", 0);
+//        ripeContentService.updateContentViews("user12345", "content123", 0);
 //        ripeContentService.uploadContent(ripeContent);
 
         // get content from user id
 //        RipeContentService ripeContentService = new RipeContentService(new URL("http://10.92.1.68:5000/"));
 //        RipeUser ru = new RipeUser(null, null, null, 0, null , null, "user12345");
 //        ripeContentService.getContentForUser(ru);
-
-
 
         // get leaderboard
 //        RipeUserService ripeUserService = new RipeUserService(new URL("http://10.92.1.68:5000/"));
@@ -40,8 +40,10 @@ public class Main {
 
     }
 
+
     public static void main(String args[]) throws Exception {
         Main main = new Main();
         main.uploadPic();
     }
+
 }

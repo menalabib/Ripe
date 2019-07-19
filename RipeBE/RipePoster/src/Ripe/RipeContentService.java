@@ -104,10 +104,6 @@ public class RipeContentService {
         return list;
     }
 
-    public void getContent(String uuid) {
-        
-    }
-
     public void uploadContent(Ripe.RipeContent ripeContent) throws Exception {
         // Request Data
         RequestBody title = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.title);
@@ -141,6 +137,10 @@ public class RipeContentService {
             }
         });
 
+    }
+
+    public static String createBlobURL(String uuid) {
+        return "https://ripeblob2.blob.core.windows.net/usercontent/"+uuid;
     }
 
 }
