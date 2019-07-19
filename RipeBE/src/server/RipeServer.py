@@ -152,14 +152,16 @@ def get_content_for_user(user_uid):
 @app.route('/update_content_view/<user_uid>/<content_uid>', methods=['PUT'])
 def update_content_views(user_uid, content_uid):
     if ACTION in request.form:
+        content_dict = content_collection.find_one({UID: content_uid})
         content_collection.update_one({UID: content_uid}, {'$inc': {VIEWS: 1}})
         user_collection.update_one({UUID: user_uid}, {'$push': {VIEWED_CONTENT: content_uid}})
         if request.form[ACTION] == '0':
             content_collection.update_one({UID: content_uid}, {'$inc': {DOWNVOTES: 1}})
         elif request.form[ACTION] == '1':
-            # TODO Update user tags
             content_collection.update_one({UID: content_uid}, {'$inc': {UPVOTES: 1}})
             user_collection.update_one({CONTENT_UPLOADED: content_uid}, {'$inc': {SCORE: 1}})
+            for tag in content_dict[TAGS]:
+                user_collection.update_one({UUID: user_uid}, {'$push': {TAGS: tag}})
             user_collection.update_one({UUID: user_uid}, {'$push': {SAVED_CONTENT: content_uid}})
 
         return "Content Updated!"
@@ -169,14 +171,12 @@ def update_content_views(user_uid, content_uid):
 
 @app.route('/get_leaderboard', methods=['GET'])
 def get_leaderboard():
-    # TODO Need to actually sort the leaderboard
-    leaderboard = leaderboard_collection.find_one()
-    if leaderboard is None:
-        raise BadRequest('Leaderboard Not Found!')
-    top_ten = leaderboard[TOP_TEN]
-    full_leaderboard = leaderboard[FULL_LEADERBOARD]
-    print({TOP_TEN: top_ten, FULL_LEADERBOARD: full_leaderboard})
-    return jsonify({TOP_TEN: top_ten, FULL_LEADERBOARD: full_leaderboard})
+    return_list = []
+    ordered_users = user_collection.find({'$query': {}, '$orderby': {SCORE: -1}})
+    for i in range(10):
+        return_list.append((ordered_users[i][NAME], ordered_users[i][SCORE]))
+
+    return jsonify(return_list)
 
 
 @app.route('/get_user_by_id/<user_uid>', methods=['GET'])
