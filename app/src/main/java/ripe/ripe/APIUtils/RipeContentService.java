@@ -1,5 +1,7 @@
 package ripe.ripe.APIUtils;
 
+import android.util.Log;
+
 import java.lang.reflect.Type;
 
 import com.google.gson.Gson;
@@ -38,24 +40,29 @@ public class RipeContentService {
         void setContent(String contentId, String title, boolean isVideo);
     }
 
+    public interface GetContentByIdCallback{
+        void populateContent(RipeContent content);
+    }
+
     private interface RipeService {
         @Multipart
         @POST("post_content")
         Call<ResponseBody> postContent(
                 @Part("is_video") RequestBody isVideo,
                 @Part("title") RequestBody title,
-                @Part("uid") RequestBody uid,
                 @Part("tags") RequestBody tags,
                 @Part("uploaded_by") RequestBody ub,
-                @Part("upvotes") RequestBody uv,
-                @Part("downvotes") RequestBody dv,
-                @Part("views") RequestBody v,
                 @Part MultipartBody.Part file
         );
 
         @GET("get_content_for_user/{uuid}")
         Call<ResponseBody> getContentForUser(
                 @Path("uuid") String uuid
+        );
+
+        @GET("get_content_by_id/{contentId}")
+        Call<ResponseBody> getContentById(
+                @Path("contentId") String contentId
         );
 
         @Multipart
@@ -65,6 +72,28 @@ public class RipeContentService {
                 @Path("contentId") String contentId,
                 @Part("action") RequestBody action
         );
+    }
+
+    public void getContentById(String contentId, final GetContentByIdCallback getContentByIdCallback) {
+        final Type ripeContentType = new TypeToken<RipeContent>(){}.getType();
+        Call<ResponseBody> responseBodyCall = ripeService.getContentById(contentId);
+
+        responseBodyCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    RipeContent content = new Gson().fromJson(response.body().string(), ripeContentType);
+                    getContentByIdCallback.populateContent(content);
+                } catch (Exception e){
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
     }
 
     public void updateContentViews(String userId, String contentId, Integer vote) {
@@ -109,38 +138,30 @@ public class RipeContentService {
         });
     }
 
-    public void uploadContent(RipeContent ripeContent) throws Exception {
+    public void uploadContent(RipeContent ripeContent) {
         // Request Data
         RequestBody title = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.title);
 
-        RequestBody uid = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.uuid);
-
         RequestBody ub = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.uploaded_by);
-
-        RequestBody uv = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.upvotes.toString());
-
-        RequestBody dv = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.downvotes.toString());
-
-        RequestBody views = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.views.toString());
 
         RequestBody tags = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.splitTags());
 
-        RequestBody isVideo = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.isVideo);
+        RequestBody isVideo = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.is_video);
 
         // Getting file info
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", ripeContent.file.getName(), requestFile);
 
-        Call<ResponseBody> response = ripeService.postContent(isVideo, title, uid, tags, ub, uv, dv, views, body);
+        Call<ResponseBody> response = ripeService.postContent(isVideo, title, tags, ub, body);
         response.enqueue(new Callback<ResponseBody> () {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                System.out.print(response.toString());
+                Log.d("Upload response: ", response.toString());
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                System.out.print("failed to post content");
+                Log.d("Upload failure: ", "failed to post content");
             }
         });
 

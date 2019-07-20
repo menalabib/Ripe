@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 public class RipeContent {
 
-    public String isVideo;
+    public String is_video;
     public String title;
-    public String uuid;
+    public String uid;
     public ArrayList<String> tags;
     public String uploaded_by;
     public Integer upvotes;
@@ -15,16 +15,11 @@ public class RipeContent {
     public Integer views;
     public File file;
 
-    public RipeContent (String isVideo, String title, String uuid, ArrayList<String> tags, String uploaded_by, Integer upvotes, Integer downvotes,
-                 Integer views, File file) {
-        this.isVideo = isVideo;
+    public RipeContent (String is_video, String title, ArrayList<String> tags, String uploaded_by, File file) {
+        this.is_video = is_video;
         this.title = title;
-        this.uuid = uuid;
         this.tags = tags;
         this.uploaded_by = uploaded_by;
-        this.upvotes = upvotes;
-        this.downvotes = downvotes;
-        this.views = views;
         this.file = file;
     }
 

@@ -7,38 +7,30 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
+import java.sql.Array;
 import java.util.ArrayList;
 
+import ripe.ripe.APIUtils.RipeContentService;
 import ripe.ripe.R;
 
 public class GridImageAdapter extends BaseAdapter {
 
-    private Context context;
-    private int[] thumbIds;
-
-    public GridImageAdapter(Context c, int[] images) {
-        context = c;
-        this.thumbIds = images;
-    }
-
     private Context mContext;
     private LayoutInflater mInflater;
-    private int layoutResource;
-    private String mAppend;
-    private ArrayList<String> imgURLs;
+    private String[] imgURLs;
 
-    public GridImageAdapter(Context context, int layoutResource, String append, ArrayList<String> imgURLs) {
+    public GridImageAdapter(Context context, String[] imgURLs) {
         super();
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mContext = context;
-        this.layoutResource = layoutResource;
-        mAppend = append;
         this.imgURLs = imgURLs;
     }
 
     @Override
     public int getCount() {
-        return thumbIds.length;
+        return imgURLs.length;
     }
 
 
@@ -53,7 +45,7 @@ public class GridImageAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         if (view == null) {
-            final LayoutInflater inflater = LayoutInflater.from(context);
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             view = inflater.inflate(R.layout.profile_image, null);
             ImageView imageView = view.findViewById(R.id.imageView);
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -61,7 +53,7 @@ public class GridImageAdapter extends BaseAdapter {
             view.setTag(viewHolder);
         }
         final ViewHolder viewHolder = (ViewHolder)view.getTag();
-        viewHolder.imageView.setImageResource(thumbIds[i]);
+        Glide.with(mContext).load(RipeContentService.createBlobURL(imgURLs[i])).into(viewHolder.imageView);
         return view;
     }
 

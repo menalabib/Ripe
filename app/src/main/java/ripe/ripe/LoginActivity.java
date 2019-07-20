@@ -118,7 +118,7 @@ public class LoginActivity extends Activity {
                 RipeUserService service = new RipeUserService();
                 service.createUser(new RipeUser(name, email,
                         new String[]{}, 0, new String[]{}, new String[]{},
-                        ""), getApplicationContext(), new RipeUserService.RipeCallback() {
+                        ""), getApplicationContext(), new RipeUserService.CreateUserCallback() {
                     @Override
                     public void startNav() {
                         Intent intent = new Intent(LoginActivity.this, NavActivity.class);

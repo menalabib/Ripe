@@ -6,29 +6,38 @@ import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.bumptech.glide.Glide;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.security.acl.Group;
 import java.util.ArrayList;
+import java.util.List;
 
+import ripe.ripe.APIUtils.Preference;
+import ripe.ripe.APIUtils.RipeContentService;
+import ripe.ripe.APIUtils.RipeGroupService;
 import ripe.ripe.NavActivity;
 import ripe.ripe.R;
 import ripe.ripe.Utils.FilePaths;
 import ripe.ripe.Utils.FileSearch;
 import ripe.ripe.Utils.GridImageAdap;
+import ripe.ripe.Utils.GridImageAdapter;
 
 public class GroupGalleryActivity extends AppCompatActivity {
 
@@ -65,14 +74,13 @@ public class GroupGalleryActivity extends AppCompatActivity {
             }
         });
 
-
         // Set up screen size values
         DisplayMetrics displaymetrics = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        GroupGalleryActivity.this.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         windowHeight = displaymetrics.heightPixels;
         windowWidth = displaymetrics.widthPixels;
         screenCenter = windowWidth / 2;
-        context = this;
+        context = GroupGalleryActivity.this;
         parentView = findViewById(R.id.relLayout2);
 
         init();
@@ -87,65 +95,60 @@ public class GroupGalleryActivity extends AppCompatActivity {
     }
 
     private void init() {
-        FilePaths filePaths = new FilePaths();
+        final String uuid = Preference.getSharedPreferenceString(GroupGalleryActivity.this.getApplicationContext(), "userId", "oops");
+        String groupId = getIntent().getExtras().get("group_id").toString();
 
-        if(FileSearch.getDirectoryPaths(filePaths.PICTURES) != null) {
-            directories = FileSearch.getDirectoryPaths(filePaths.PICTURES);
-        }
-        directories.add(filePaths.CAMERA);
-
-        final ArrayList<String> directoryNames = new ArrayList<>();
-        for (String dir : directories) {
-            directoryNames.add(dir.substring(dir.lastIndexOf("/") + 1));
-        }
-
-        setupGridView(directories.get(0));
-    }
-
-    private void setupGridView(String selectedDirectory) {
-        final ArrayList<String> imgURLS = FileSearch.getFilePaths(selectedDirectory);
-        int gridWidth = getResources().getDisplayMetrics().widthPixels;
-        int imageWidth = gridWidth/3;
-        gridView.setColumnWidth(imageWidth);
-
-        GridImageAdap gridImageAdapter = new GridImageAdap(this, R.layout.layout_grid_imageview, "file:/", imgURLS);
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
-        if (imgURLS.size() != 0) {
-            gridView.setAdapter(gridImageAdapter);
-        }
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        RipeGroupService groupService = new RipeGroupService();
+        groupService.getGallery(groupId, new RipeGroupService.GetGalleryCallback() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                selectedImage = imgURLS.get(i);
-                createCard(selectedImage);
+            public void setUpGallery(final String[] contentIds) {
+                //setup our image grid
+                int gridWidth = getResources().getDisplayMetrics().widthPixels;
+                int imageWidth = gridWidth/3;
+                gridView.setColumnWidth(imageWidth);
+
+                GridImageAdapter adapter = new GridImageAdapter(context, contentIds);
+                gridView.setAdapter(adapter);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        createCard(contentIds[position]);
+                    }
+                });
             }
         });
     }
 
     public void createCard(String selectedImage) {
-        LayoutInflater inflate = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflate = (LayoutInflater) GroupGalleryActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View containerView = inflate.inflate(R.layout.card_view, parentView, false);
-        RelativeLayout relativeLayoutContainer = containerView.findViewById(R.id.relative_container);
+        final RelativeLayout relativeLayoutContainer = containerView.findViewById(R.id.relative_container);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         containerView.setLayoutParams(layoutParams);
 
-        TextView titleTextView = containerView.findViewById(R.id.title);
-        ImageView imageView = containerView.findViewById(R.id.image_view);
-        VideoView videoView = containerView.findViewById(R.id.video_view);
-        mProgressBar = containerView.findViewById(R.id.progressBar);
+        LinearLayout titleView = containerView.findViewById(R.id.title_view);
+        titleView.setAlpha(0);
+        final ImageView imageView = containerView.findViewById(R.id.image_view);
+        final VideoView videoView = containerView.findViewById(R.id.video_view);
 
         final ImageView likeIcon = containerView.findViewById(R.id.like_logo);
         final ImageView dislikeIcon = containerView.findViewById(R.id.dislike_logo);
+
+        final ProgressBar progressBar = containerView.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+
         likeIcon.setImageAlpha(0);
         dislikeIcon.setImageAlpha(0);
 
-        // Set card contents
-        titleTextView.setText(selectedImage);
+        final String uuid = Preference.getSharedPreferenceString(GroupGalleryActivity.this.getApplicationContext(), "userId", "oops");
+        final RipeGroupService groupService = new RipeGroupService();
 
         videoView.setAlpha(0);
+        imageView.setAlpha(255);
+
         imageView.setBackgroundColor(getResources().getColor(R.color.black));
-        setImage(selectedImage,imageView,"file:/");
+        Glide.with(GroupGalleryActivity.this).load(RipeContentService.createBlobURL(selectedImage)).into(imageView);
+        progressBar.setVisibility(View.INVISIBLE);
 
         // Touch listener on the image layout to swipe image right or left.
         //noinspection AndroidLintClickableViewAccessibility

@@ -5,14 +5,12 @@ public class PersonDataModel {
 
     int rank;
     String name;
-    String email;
-    int image;
+    int score;
 
-    public PersonDataModel(int rank, String name, String email, int image) {
+    public PersonDataModel(int rank, String name, int score) {
         this.rank = rank;
         this.name = name;
-        this.email = email;
-        this.image=image;
+        this.score = score;
     }
 
     public int getRank() {
@@ -23,12 +21,6 @@ public class PersonDataModel {
         return name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public int getImage() {
-        return image;
-    }
+    public int getScore() { return score; }
 
 }
