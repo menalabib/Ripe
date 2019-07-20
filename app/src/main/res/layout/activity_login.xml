@@ -30,7 +30,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="60.0dp"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/login_logo" />
+            android:src="@drawable/mango_logo" />
 
         <Button
             android:id="@+id/btn_fb_login"
