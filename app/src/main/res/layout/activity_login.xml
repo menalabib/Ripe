@@ -40,7 +40,6 @@
             android:textSize="15sp"
             android:layout_marginTop="100.0dp"
             android:background="@drawable/button_layout"
-            android:drawableStart="@drawable/login_fb"
             android:drawableTint="@color/peach"
             android:drawablePadding="20dp"
             android:paddingLeft="60dp"
