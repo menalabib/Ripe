@@ -1,4 +1,7 @@
-package Ripe;
+package ripe.ripe.APIUtils;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -12,6 +15,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,16 +24,23 @@ import java.util.Map;
 
 public class RipeUserService {
 
-    private final Retrofit retrofit;
-    private final RipeService ripeService;
+    private Retrofit retrofit;
+    private RipeService ripeService;
+    private final String url = "http://172.20.10.4:5000/";
 
-    RipeUserService(URL url) {
-        this.retrofit = new Retrofit
-                .Builder()
-                .baseUrl(url)
-                .build();
+    public RipeUserService() {
+        try {
+            this.retrofit = new Retrofit
+                    .Builder()
+                    .baseUrl(new URL(url))
+                    .build();
+            this.ripeService = retrofit.create(RipeService.class);
+        }
+        catch (MalformedURLException e) { }
+    }
 
-        this.ripeService = retrofit.create(RipeService.class);
+    public interface RipeCallback {
+        void startNav();
     }
 
     private interface RipeService {
@@ -49,7 +60,7 @@ public class RipeUserService {
         Call<ResponseBody> getLeaderboard ();
     }
 
-    public void createUser(RipeUser ripeUser) {
+    public void createUser(final RipeUser ripeUser, final Context context, final RipeCallback ripeCallback) {
         RequestBody name = RequestBody.create(MediaType.parse("multipart/form-data"), ripeUser.name);
 
         RequestBody email = RequestBody.create(MediaType.parse("multipart/form-data"), ripeUser.email);
@@ -59,8 +70,10 @@ public class RipeUserService {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
-                    ripeUser.uuid = response.body().string().replace("\"", "");
-                    System.out.println(ripeUser.uuid);
+                    ripeUser.setUuid(response.body().string().replace("\"", "").replace("\n",""));
+                    System.out.println("Creating user: " + ripeUser.uuid);
+                    Preference.setSharedPreferenceString(context, "userId", ripeUser.uuid);
+                    ripeCallback.startNav();
                 } catch(Exception e) {
                     System.out.print("no uuid found");
                 }
@@ -74,8 +87,8 @@ public class RipeUserService {
     }
 
     public RipeUser getUserById(String uuid) {
-        Type ripeUserType = new TypeToken<RipeUser>(){}.getType();
-        RipeUser ripeUser = new RipeUser();
+        final Type ripeUserType = new TypeToken<RipeUser>(){}.getType();
+        final RipeUser ripeUser = new RipeUser();
 
         Call<ResponseBody> responseBodyCall = ripeService.getUserById(uuid);
         responseBodyCall.enqueue(new Callback<ResponseBody> () {
@@ -98,9 +111,9 @@ public class RipeUserService {
     }
 
     public void getLeaderboard() {
-        Type leaderboardType = new TypeToken<List<List<String>>>(){}.getType();
+        final Type leaderboardType = new TypeToken<List<List<String>>>(){}.getType();
+        final List<List<String>> leaderBoard = new ArrayList<>();
 
-        List<List<String>> leaderBoard = new ArrayList<>();
         Call<ResponseBody> responseBodyCall = ripeService.getLeaderboard();
         responseBodyCall.enqueue(new Callback<ResponseBody> () {
             @Override

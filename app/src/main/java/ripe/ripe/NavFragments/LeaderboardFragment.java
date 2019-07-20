@@ -53,9 +53,6 @@ public class LeaderboardFragment extends Fragment {
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-//        String[] names = new String[LEADER_COUNT];
-//        String[] emails = new String[LEADER_COUNT];
-//        int[] images = new int[LEADER_COUNT];
 
         //HARDCODED LEADERBOARD
         String[] names = {"Travis Scott", "Kanye West", "Kendrick Lamar", "Drake", "Asap Rocky", "Isaiah Rashad", "Skepta"};

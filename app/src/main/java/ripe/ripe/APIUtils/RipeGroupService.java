@@ -1,4 +1,4 @@
-package Ripe;
+package ripe.ripe.APIUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -14,22 +14,26 @@ import retrofit2.http.*;
 
 import java.io.File;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RipeGroupService {
-    private final Retrofit retrofit;
-    private final RipeGroupService.RipeService ripeService;
+    private Retrofit retrofit;
+    private RipeGroupService.RipeService ripeService;
+    private final String url = "http://172.20.10.4:5000/";
 
-    RipeGroupService(URL url) {
-        this.retrofit = new Retrofit
-                .Builder()
-                .baseUrl(url)
-                .build();
-
-        this.ripeService = retrofit.create(RipeGroupService.RipeService.class);
-    }
+    RipeGroupService() {
+        try {
+            this.retrofit = new Retrofit
+                    .Builder()
+                    .baseUrl(new URL(url))
+                    .build();
+            this.ripeService = retrofit.create(RipeService.class);
+        }
+        catch (MalformedURLException e) { }
+        }
 
     private interface RipeService {
         @POST("create_group/{userId}")
@@ -71,8 +75,8 @@ public class RipeGroupService {
     }
 
     public void getGallery(String groupId) {
-        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-        List<String> list = new ArrayList<>();
+        final Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+        final List<String> list = new ArrayList<>();
         Call<ResponseBody> response = ripeService.getGallery(groupId);
         response.enqueue(
                 new Callback<ResponseBody>() {
@@ -122,8 +126,8 @@ public class RipeGroupService {
 
     public void getGroupContent(String userId, String groupId) {
         Call<ResponseBody> response = ripeService.getGroupContent(userId, groupId);
-        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-        List<String> list = new ArrayList<>();
+        final Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+        final List<String> list = new ArrayList<>();
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

@@ -1,10 +1,11 @@
-package Ripe;
+package ripe.ripe.APIUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 
 public class RipeContent {
 
+    public String isVideo;
     public String title;
     public String uuid;
     public ArrayList<String> tags;
@@ -14,8 +15,9 @@ public class RipeContent {
     public Integer views;
     public File file;
 
-    RipeContent (String title, String uuid, ArrayList<String> tags, String uploaded_by, Integer upvotes, Integer downvotes,
+    public RipeContent (String isVideo, String title, String uuid, ArrayList<String> tags, String uploaded_by, Integer upvotes, Integer downvotes,
                  Integer views, File file) {
+        this.isVideo = isVideo;
         this.title = title;
         this.uuid = uuid;
         this.tags = tags;

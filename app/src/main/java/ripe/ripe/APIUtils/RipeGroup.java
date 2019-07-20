@@ -1,4 +1,4 @@
-package Ripe;
+package ripe.ripe.APIUtils;
 
 public class RipeGroup {
 }

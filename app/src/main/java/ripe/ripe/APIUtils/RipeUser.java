@@ -1,4 +1,4 @@
-package Ripe;
+package ripe.ripe.APIUtils;
 
 public class RipeUser {
     public String uuid;
@@ -10,7 +10,7 @@ public class RipeUser {
     public String[] viewed_content;
     public String[] tags;
 
-    RipeUser (String name, String email, String[] contentUploaded, Integer score, String[] savedContent, String[] viewedContent,
+    public RipeUser (String name, String email, String[] contentUploaded, Integer score, String[] savedContent, String[] viewedContent,
               String uuid) {
         this.name = name;
         this.email = email;
@@ -23,6 +23,10 @@ public class RipeUser {
 
     RipeUser() {
 
+    }
+
+    public void setUuid(String id) {
+        uuid = id;
     }
 
     public void copy(RipeUser ru) {
