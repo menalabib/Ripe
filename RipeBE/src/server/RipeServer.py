@@ -64,20 +64,21 @@ def post_content():
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     tags = request.form[TAGS].split(",")
+    user = request.form[UPLOADED_BY]
 
     content = {
         TITLE: request.form[TITLE],
         TAGS: tags,
-        UPLOADED_BY: request.form[UPLOADED_BY],
+        UPLOADED_BY: user,
         UPVOTES: 0,
         DOWNVOTES: 0,
         VIEWS: 0,
         IS_VIDEO: int(request.form[IS_VIDEO]),
     }
-
     post_id = content_collection.insert_one(content).inserted_id
 
     content_collection.update_one({'_id': post_id}, {'$set': {UID: str(post_id)}})
+    user_collection.update_one({UUID: user}, {'$push': {CONTENT_UPLOADED: str(post_id)}})
 
     # Create the BlockBlockService that is used to call the Blob service for the storage account.
     block_blob_service = BlockBlobService(account_name=constants.blob_consts['ACCOUNT_NAME'],
@@ -117,6 +118,7 @@ def create_user():
         SAVED_CONTENT: [],
         VIEWED_CONTENT: [],
         TAGS: [],
+        GROUPS: [],
     }
     post_id = user_collection.insert(user)
     user_collection.update_one({EMAIL: request.form[EMAIL]}, {'$set': {UUID: str(post_id)}})
@@ -143,6 +145,7 @@ def get_content_for_user(user_uid):
 
         # for user_cont in user_content:
         if str(user_content.get('_id')) not in viewed_content and str(user_content.get('_id')) not in content_uploaded:
+            user_collection.update_one({UUID: user_uid}, {'$push': {VIEWED_CONTENT: user_content.get(UID)}})
             return jsonify([user_content.get(UID), user_content.get(TITLE), user_content.get(IS_VIDEO)])
 
     # for all_cont in list(content_collection.find()):
@@ -187,9 +190,10 @@ def update_content_views(user_uid, content_uid):
 def get_leaderboard():
     return_list = []
     ordered_users = user_collection.find({'$query': {}, '$orderby': {SCORE: -1}})
-    for i in range(10):
+    for i in range(min(10, user_collection.count())):
         return_list.append((ordered_users[i][NAME], ordered_users[i][SCORE]))
 
+    print(return_list)
     return jsonify(return_list)
 
 
@@ -209,7 +213,8 @@ def get_content_by_id(content_uid):
     content_dict = content_collection.find_one({UID: content_uid})
     if content_dict is None:
         raise BadRequest('Content Not Found!')
-
+    content_dict[UID] = str(content_dict.get('_id'))
+    del content_dict['_id']
     return jsonify(content_dict)
 
 
@@ -223,6 +228,7 @@ def create_group(user_uid):
     uid = group_collection.insert_one(group).inserted_id
     group_id = str(uid)[-5:]
     group_collection.update_one({'_id': uid}, {'$set': {UID: group_id}})
+    user_collection.update_one({UUID: user_uid}, {'$push': {GROUPS: group_id}})
     return jsonify(group_id)
 
 
@@ -234,6 +240,7 @@ def join_group(user_uid, group_uid):
     if user_uid in group_dict[MEMBERS]:
         raise BadRequest('User already in group!')
     group_collection.update_one({UID: group_uid}, {'$push': {MEMBERS: user_uid}})
+    user_collection.update_one({UUID: user_uid}, {'$push': {GROUPS: group_uid}})
     return "Group members updated!"
 
 
@@ -273,10 +280,10 @@ def get_group_content(user_uid, group_uid):
     group_dict = group_collection.find_one({UID: group_uid})
     if group_dict is None:
         raise BadRequest('Invalid Group ID')
-    group_content = group_dict[CONTENT_UPLOADED]
     user_dict = user_collection.find_one({UUID: user_uid})
     if user_dict is None:
         raise BadRequest('Invalid User ID')
+    group_content = group_dict[CONTENT_UPLOADED]
     viewed_content = user_dict[VIEWED_CONTENT]
     for content in group_content:
         if content not in viewed_content:
@@ -291,9 +298,11 @@ def update_group_content_views(user_uid, content_uid):
         group_id = content_dict[GROUPS]
         user_collection.update_one({UUID: user_uid}, {'$push': {VIEWED_CONTENT: content_uid}})
         group_content_collection.update_one({UID: content_uid}, {'$inc': {VIEWS: 1}})
+        content_dict[VIEWS] += 1
         if request.form[ACTION] == '1':
-            content_collection.update_one({UID: content_uid}, {'$inc': {UPVOTES: 1}})
-        if content_dict[UPVOTES] > content_dict[VIEWS] / 2:
+            group_content_collection.update_one({UID: content_uid}, {'$inc': {UPVOTES: 1}})
+            content_dict[UPVOTES] += 1
+        if (content_dict[UPVOTES]/content_dict[VIEWS]) > 0.5:
             group_collection.update_one({UID: group_id}, {'$push': {GALLERY: content_uid}})
         return "Content Updated!"
     raise BadRequest('Action Not Found!')
