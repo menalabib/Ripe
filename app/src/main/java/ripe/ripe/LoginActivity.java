@@ -28,7 +28,12 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
+
+import ripe.ripe.APIUtils.RipeUser;
+import ripe.ripe.APIUtils.RipeUserService;
 
 public class LoginActivity extends Activity {
 
@@ -36,10 +41,6 @@ public class LoginActivity extends Activity {
     private String name;
     private String email;
     private Button btn_fb_login;
-    public static final String FB_NAME = "com.example.ripe.name";
-    public static final String FB_EMAIL = "com.example.ripe.email";
-    public static final String FB_IMAGE = "com.example.ripe.image";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +54,6 @@ public class LoginActivity extends Activity {
 
         if(isLoggedIn()){
             Intent intent = new Intent(LoginActivity.this, NavActivity.class);
-            intent.putExtra(FB_NAME, name);
-            intent.putExtra(FB_EMAIL, email);
             finish();
             startActivity(intent);
         }
@@ -90,14 +89,11 @@ public class LoginActivity extends Activity {
     AccessTokenTracker tokenTracker = new AccessTokenTracker() {
         @Override
         protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-            if (currentAccessToken == null) {
+            if (!isLoggedIn()) {
                 // user is logged out
             }
             else {
-                Intent intent = new Intent(LoginActivity.this, NavActivity.class);
-                intent.putExtra(FB_NAME, name);
-                intent.putExtra(FB_EMAIL, email);
-                startActivity(intent);
+                loadProfile(currentAccessToken);
             }
         }
     };
@@ -117,6 +113,19 @@ public class LoginActivity extends Activity {
                 catch (JSONException e ) {}
                 name = firstName + " " + lastName;
                 email = emailA;
+
+                Log.d("ZUHEIR", "" + name + email);
+                RipeUserService service = new RipeUserService();
+                service.createUser(new RipeUser(name, email,
+                        new String[]{}, 0, new String[]{}, new String[]{},
+                        ""), getApplicationContext(), new RipeUserService.RipeCallback() {
+                    @Override
+                    public void startNav() {
+                        Intent intent = new Intent(LoginActivity.this, NavActivity.class);
+                        finish();
+                        startActivity(intent);
+                    }
+                });
             }
         });
 
@@ -134,32 +143,7 @@ public class LoginActivity extends Activity {
 
     public boolean isLoggedIn() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null;
-    }
-
-    /** sample code to upload to our blob storage **/
-    private static final String storageURL = "BLOB_STORAGE_URL";
-    private static final String storageContainer = "ribeblol";
-    private static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=ripeblob;AccountKey=ZbG1DUXzpTAJfZJM2s3TlifmUEI/gj/pw5acLv0Ht0uqniOVYYB41r0tAulZB53+NtXDCUruUFplXtfdqQE30w==;EndpointSuffix=core.windows.net";
-
-    protected void storeImageInBlobStorage(String imgPath){
-        try
-        {
-            // Retrieve storage account from connection-string.
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
-            // Create the blob client.
-            CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            // Retrieve reference to a previously created container.
-            CloudBlobContainer container = blobClient.getContainerReference(storageContainer);
-            // Create or overwrite the blob (with the name "example.jpeg") with contents from a local file.
-            CloudBlockBlob blob = container.getBlockBlobReference("example.jpg");
-            File source = new File(imgPath);
-            blob.upload(new FileInputStream(source), source.length());
-        }
-        catch (Exception e)
-        {
-            // Output the stack trace.
-            e.printStackTrace();
-        }
+        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        return isLoggedIn;
     }
 }

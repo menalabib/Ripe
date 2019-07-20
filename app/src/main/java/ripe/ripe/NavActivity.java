@@ -1,11 +1,14 @@
 package ripe.ripe;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MenuItem;
 
+import ripe.ripe.APIUtils.Preference;
 import ripe.ripe.NavFragments.FeedFragment;
 import ripe.ripe.NavFragments.Groups.GroupsFragment;
 import ripe.ripe.NavFragments.LeaderboardFragment;
@@ -13,6 +16,8 @@ import ripe.ripe.NavFragments.ProfileFragment;
 import ripe.ripe.NavFragments.UploadFlow.Up.ShareFragment;
 
 public class NavActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+
+    String uuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,10 @@ public class NavActivity extends AppCompatActivity implements BottomNavigationVi
         navView.setOnNavigationItemSelectedListener(this);
 
         loadFragment(new FeedFragment());
+
+        uuid = Preference.getSharedPreferenceString(getApplicationContext(), "userId", "oops");
+
+        Log.d("ZUHEIR", "" + uuid);
     }
 
     private boolean loadFragment(android.support.v4.app.Fragment fragment) {

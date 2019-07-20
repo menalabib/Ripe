@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -107,6 +108,15 @@ public class ShareFragment extends Fragment {
 
     public void verifyPermissions(String[] permissions) {
         getActivity().requestPermissions(permissions, VERIFY_PERMISSIONS_REQUEST);
-        setupViewPager();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (checkPermissionsArray(Permissions.permissions)) {
+            setupViewPager();
+        } else {
+            verifyPermissions(Permissions.permissions);
+        }
     }
 }

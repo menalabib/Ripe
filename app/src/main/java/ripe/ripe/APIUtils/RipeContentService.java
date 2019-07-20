@@ -1,4 +1,4 @@
-package Ripe;
+package ripe.ripe.APIUtils;
 
 import java.lang.reflect.Type;
 
@@ -13,27 +13,36 @@ import retrofit2.http.*;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RipeContentService {
-    private final Retrofit retrofit;
-    private final RipeService ripeService;
+    private Retrofit retrofit;
+    private RipeService ripeService;
+    private final String url = "http://172.20.10.4:5000/";
 
-    RipeContentService(URL url) {
-        this.retrofit = new Retrofit
-                .Builder()
-                .baseUrl(url)
-                .build();
+    public RipeContentService() {
+        try {
+            this.retrofit = new Retrofit
+                    .Builder()
+                    .baseUrl(new URL(url))
+                    .build();
+            this.ripeService = retrofit.create(RipeService.class);
+        }
+        catch (MalformedURLException e) { }
+    }
 
-        this.ripeService = retrofit.create(RipeService.class);
+    public interface RipeCallback {
+        void setContent(String contentId, String title, boolean isVideo);
     }
 
     private interface RipeService {
         @Multipart
         @POST("post_content")
         Call<ResponseBody> postContent(
+                @Part("is_video") RequestBody isVideo,
                 @Part("title") RequestBody title,
                 @Part("uid") RequestBody uid,
                 @Part("tags") RequestBody tags,
@@ -76,20 +85,17 @@ public class RipeContentService {
         );
     }
 
-    public List<String> getContentForUser(RipeUser user) {
-        Call<ResponseBody> response = ripeService.getContentForUser(user.uuid);
-        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-        List<String> list = new ArrayList<>();
+    public void getContentForUser(String uuid, final RipeCallback ripeCallback) {
+        final Type listType = new TypeToken<List<String>>(){}.getType();
+        Call<ResponseBody> response = ripeService.getContentForUser(uuid);
         response.enqueue(new Callback<ResponseBody> () {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                System.out.print(response.toString());
+                System.out.print("GetContentForUser response: " + response.toString());
                 if(response.code() == 400) return;
                 try {
-                    List<String> gson = new Gson().fromJson(response.body().string(), listType);
-                    for(String s: gson) {
-                        list.add(s);
-                    }
+                    List<String> l = new Gson().fromJson(response.body().string(), listType);
+                    ripeCallback.setContent(l.get(0), l.get(1), l.get(2).equals("1"));
                 } catch (Exception e) {
                     System.out.println("No content return");
                 }
@@ -101,10 +107,9 @@ public class RipeContentService {
                 System.out.print("failed to get content");
             }
         });
-        return list;
     }
 
-    public void uploadContent(Ripe.RipeContent ripeContent) throws Exception {
+    public void uploadContent(RipeContent ripeContent) throws Exception {
         // Request Data
         RequestBody title = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.title);
 
@@ -120,11 +125,13 @@ public class RipeContentService {
 
         RequestBody tags = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.splitTags());
 
+        RequestBody isVideo = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.isVideo);
+
         // Getting file info
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), ripeContent.file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", ripeContent.file.getName(), requestFile);
 
-        Call<ResponseBody> response = ripeService.postContent(title, uid, tags, ub, uv, dv, views, body);
+        Call<ResponseBody> response = ripeService.postContent(isVideo, title, uid, tags, ub, uv, dv, views, body);
         response.enqueue(new Callback<ResponseBody> () {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
