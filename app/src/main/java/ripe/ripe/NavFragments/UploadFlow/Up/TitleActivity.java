@@ -66,6 +66,7 @@ public class TitleActivity extends AppCompatActivity {
                     else if (getIntent().hasExtra(getString(R.string.selected_video))) {
                         intent.putExtra(getString(R.string.selected_video), uri);
                     }
+                    intent.putExtra("TITLE", titleText.getText().toString());
                     startActivity(intent);
                 }
                 else {

@@ -24,6 +24,15 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
+import ripe.ripe.APIUtils.Preference;
+import ripe.ripe.APIUtils.RipeContent;
+import ripe.ripe.APIUtils.RipeGroupService;
+import ripe.ripe.APIUtils.RipeUser;
+import ripe.ripe.APIUtils.RipeUserService;
 import ripe.ripe.NavFragments.UploadFlow.Up.ShareFragment;
 import ripe.ripe.R;
 
@@ -36,6 +45,10 @@ public class GroupsFragment extends Fragment {
     TextView rowLabel;
     ImageButton addContentButton;
     TextView newGroupTV;
+    String uuid;
+    String selectedGroup;
+
+    RipeGroupService groupService;
 
     private OnFragmentInteractionListener mListener;
 
@@ -60,6 +73,8 @@ public class GroupsFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_groups, container, false);
         newGroupTV = (TextView) view.findViewById(R.id.newGroup);
         tableLayout = (TableLayout) view.findViewById(R.id.tableLayout);
+
+        uuid = Preference.getSharedPreferenceString(getActivity().getApplicationContext(), "userId", "oops");
 
         newGroupTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,8 +101,7 @@ public class GroupsFragment extends Fragment {
                 builder.show();
             }
         });
-
-        setupTableRows();
+        updateTable();
         return view;
     }
 
@@ -99,43 +113,6 @@ public class GroupsFragment extends Fragment {
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
-    }
-
-    private void setupTableRows() {
-        for (int i = 0; i < 25; i++) {
-            TableRow row = (TableRow) LayoutInflater.from(getContext()).inflate(R.layout.group_table_row, null);
-            rowLabel = row.findViewById(R.id.label);
-            final String text = "" + i;
-            rowLabel.setText(text);
-            addContentButton = row.findViewById(R.id.addContent);
-            addContentButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d("ZUHEIR", "pressed button " + text);
-
-                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-                    }
-                    else {
-                        Intent inte = new Intent(getActivity(), ShareFragment.class);
-                        inte.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(inte);
-                    }
-                }
-            });
-
-            row.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d("ZUHEIR", "pressed row " + text);
-                    Intent intent = new Intent(getActivity(), GroupGalleryActivity.class);
-                    startActivity(intent);
-                }
-            });
-
-            tableLayout.addView(row);
-        }
     }
 
     private void inputGroupDialog() {
@@ -152,9 +129,14 @@ public class GroupsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Join group
-                Boolean validGroup = true;
-                if (validGroup && input.getText().length() > 0) {
-                    Log.d("ZUHEIR", "Joining group: " + input.getText());
+                if (input.getText().length() > 0) {
+                    RipeGroupService groupService = new RipeGroupService();
+                    groupService.joinGroup(uuid, input.getText().toString(), new RipeGroupService.JoinGroupCallback() {
+                        @Override
+                        public void finishJoiningGroup() {
+                            updateTable();
+                        }
+                    });
                 }
                 else {
                     inputGroupDialog();
@@ -181,6 +163,60 @@ public class GroupsFragment extends Fragment {
     }
 
     private void createGroup() {
+        groupService = new RipeGroupService();
+        groupService.createGroup(uuid, new RipeGroupService.CreateGroupCallback() {
+            @Override
+            public void setUpGroup(String groupId) {
+                updateTable();
+            }
+        });
+    }
+
+    private void updateTable() {
+        tableLayout.removeAllViews();
+
+        String uuid = Preference.getSharedPreferenceString(getActivity().getApplicationContext(), "userId", "oops");
+
+        RipeUserService userService = new RipeUserService();
+        userService.getUserById(uuid, new RipeUserService.GetUserCallback() {
+            @Override
+            public void populateUser(RipeUser ripeUsers) {
+                for (final String groupID : ripeUsers.groups) {
+                    TableRow row = (TableRow) LayoutInflater.from(getContext()).inflate(R.layout.group_table_row, null);
+                    rowLabel = row.findViewById(R.id.label);
+                    rowLabel.setText(groupID);
+                    final String rowGroupId = groupID;
+                    addContentButton = row.findViewById(R.id.addContent);
+                    addContentButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                selectedGroup = rowGroupId;
+                                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                            }
+                            else {
+                                Intent inte = new Intent(getActivity(), ShareFragment.class);
+                                inte.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(inte);
+                            }
+                        }
+                    });
+
+                    row.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getActivity(), SwipeGroupActivity.class);
+                            intent.putExtra("group_id", rowGroupId);
+                            startActivity(intent);
+                        }
+                    });
+
+                    tableLayout.addView(row);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -188,13 +224,29 @@ public class GroupsFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CAMERA_REQUEST_CODE) {
-
             Bitmap bitmap = null;
             try {
                 if (data.getExtras().get("data") != null) {
+                    RipeGroupService groupService = new RipeGroupService();
                     bitmap = (Bitmap) data.getExtras().get("data");
+
                     Intent intent = new Intent(getActivity(), SwipeGroupActivity.class);
-                    intent.putExtra(getString(R.string.selected_bitmap), bitmap);
+                    intent.putExtra("group_id", selectedGroup);
+
+                    File filesDir = getActivity().getApplicationContext().getFilesDir();
+                    File imageFile = new File(filesDir, "image.jpg");
+
+                    OutputStream os;
+                    try {
+                        os = new FileOutputStream(imageFile);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+                        os.flush();
+                        os.close();
+
+                        groupService.postToGroup(selectedGroup,imageFile);
+                    } catch (Exception e) {
+                        Log.e(getClass().getSimpleName(), "Error writing bitmap", e);
+                    }
                     startActivity(intent);
                 }
             } catch (NullPointerException e) { }

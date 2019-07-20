@@ -22,20 +22,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/peach">
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_margin="20dp"
-                android:layout_gravity="center"
-                android:src="@drawable/leader_1_trav"/>
-            <TextView
-                android:textColor="@color/white"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:text="This is a generic bio because I couldn’t think of one when designing this screen. Sorry."/>
+            <!--<ImageView-->
+                <!--android:id="@+id/image"-->
+                <!--android:layout_width="100dp"-->
+                <!--android:layout_height="100dp"-->
+                <!--android:layout_margin="20dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:src="@drawable/leader_1_trav"/>-->
+            <!--<TextView-->
+                <!--android:textColor="@color/white"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="20dp"-->
+                <!--android:text="This is a generic bio because I couldn’t think of one when designing this screen. Sorry."/>-->
         </LinearLayout>
 
         <RelativeLayout

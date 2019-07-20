@@ -21,14 +21,12 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
         TextView textViewRank;
         TextView textViewName;
         TextView textViewEmail;
-        ImageView imageViewIcon;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             this.textViewRank = (TextView) itemView.findViewById(R.id.person_rank);
             this.textViewName = (TextView) itemView.findViewById(R.id.person_name);
             this.textViewEmail = (TextView) itemView.findViewById(R.id.person_email);
-            this.imageViewIcon = (ImageView) itemView.findViewById(R.id.person_photo);
         }
     }
 
@@ -49,12 +47,10 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
         TextView textViewRank = holder.textViewRank;
         TextView textViewName = holder.textViewName;
         TextView textViewEmail = holder.textViewEmail;
-        ImageView imageView = holder.imageViewIcon;
 
         textViewRank.setText(Integer.toString(dataSet.get(listPosition).getRank()));
         textViewName.setText(dataSet.get(listPosition).getName());
-        textViewEmail.setText(dataSet.get(listPosition).getEmail());
-        imageView.setImageResource(dataSet.get(listPosition).getImage());
+        textViewEmail.setText(Integer.toString(dataSet.get(listPosition).getScore()));
     }
 
     @Override

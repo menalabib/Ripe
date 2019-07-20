@@ -39,8 +39,16 @@ public class RipeUserService {
         catch (MalformedURLException e) { }
     }
 
-    public interface RipeCallback {
+    public interface CreateUserCallback {
         void startNav();
+    }
+
+    public interface LeaderboardCallback {
+        void populateLeaderboard(List<List<String>> leaderboard);
+    }
+
+    public interface GetUserCallback {
+        void populateUser(RipeUser ripeUsers);
     }
 
     private interface RipeService {
@@ -60,7 +68,7 @@ public class RipeUserService {
         Call<ResponseBody> getLeaderboard ();
     }
 
-    public void createUser(final RipeUser ripeUser, final Context context, final RipeCallback ripeCallback) {
+    public void createUser(final RipeUser ripeUser, final Context context, final CreateUserCallback ripeCallback) {
         RequestBody name = RequestBody.create(MediaType.parse("multipart/form-data"), ripeUser.name);
 
         RequestBody email = RequestBody.create(MediaType.parse("multipart/form-data"), ripeUser.email);
@@ -86,9 +94,8 @@ public class RipeUserService {
         });
     }
 
-    public RipeUser getUserById(String uuid) {
+    public void getUserById(String uuid, final GetUserCallback  getUserCallback) {
         final Type ripeUserType = new TypeToken<RipeUser>(){}.getType();
-        final RipeUser ripeUser = new RipeUser();
 
         Call<ResponseBody> responseBodyCall = ripeService.getUserById(uuid);
         responseBodyCall.enqueue(new Callback<ResponseBody> () {
@@ -96,7 +103,7 @@ public class RipeUserService {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     RipeUser ru = new Gson().fromJson(response.body().string(), ripeUserType);
-                    ripeUser.copy(ru);
+                    getUserCallback.populateUser(ru);
                 } catch(Exception e) {
 
                 }
@@ -107,10 +114,9 @@ public class RipeUserService {
                 System.out.print("failed to get user");
             }
         });
-        return ripeUser;
     }
 
-    public void getLeaderboard() {
+    public void getLeaderboard(final LeaderboardCallback leaderboardCallback) {
         final Type leaderboardType = new TypeToken<List<List<String>>>(){}.getType();
         final List<List<String>> leaderBoard = new ArrayList<>();
 
@@ -124,6 +130,7 @@ public class RipeUserService {
                         leaderBoard.add(s);
                     }
                     System.out.println("got leaderboard");
+                    leaderboardCallback.populateLeaderboard(leaderBoard);
                 } catch(Exception e) {
                     System.out.println("failed to find leaderboard in responsebody");
                 }

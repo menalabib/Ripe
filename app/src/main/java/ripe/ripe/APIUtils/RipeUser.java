@@ -9,6 +9,7 @@ public class RipeUser {
     public String[] saved_content;
     public String[] viewed_content;
     public String[] tags;
+    public String[] groups;
 
     public RipeUser (String name, String email, String[] contentUploaded, Integer score, String[] savedContent, String[] viewedContent,
               String uuid) {
@@ -19,10 +20,6 @@ public class RipeUser {
         this.saved_content = savedContent;
         this.viewed_content = viewedContent;
         this.uuid = uuid;
-    }
-
-    RipeUser() {
-
     }
 
     public void setUuid(String id) {

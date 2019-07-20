@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import ripe.ripe.APIUtils.RipeUserService;
 import ripe.ripe.Utils.LeaderboardAdapter;
 import ripe.ripe.Utils.PersonDataModel;
 import ripe.ripe.R;
@@ -22,7 +24,6 @@ public class LeaderboardFragment extends Fragment {
     private static RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private static RecyclerView recyclerView;
-    private static ArrayList<PersonDataModel> data;
     private final int LEADER_COUNT = 7;
 
     private Context context;
@@ -54,23 +55,24 @@ public class LeaderboardFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        //HARDCODED LEADERBOARD
-        String[] names = {"Travis Scott", "Kanye West", "Kendrick Lamar", "Drake", "Asap Rocky", "Isaiah Rashad", "Skepta"};
-        String[] emails = {"goat@gmail.com", "yeezy@gmail.com", "comp10@gmail.com", "drakeazz@gmail.com", "a$ap@gmail.com", "albumnever@gmail.com", "greaze@gmail.com"};
-        int[] images = {R.drawable.leader_1_trav, R.drawable.leader_2_ye, R.drawable.leader_3_kenny, R.drawable.leader_4_drake, R.drawable.leader_5_rocky, R.drawable.leader_6_rashad, R.drawable.leader_7_skepta};
+        final ArrayList<PersonDataModel> data = new ArrayList<>();
 
-        data = new ArrayList<>();
-        for (int i = 0; i <LEADER_COUNT; ++i){
-            data.add(new PersonDataModel(
-                    i+1,
-                    names[i],
-                    emails[i],
-                    images[i]
-            ));
-        }
+        RipeUserService userService = new RipeUserService();
+        userService.getLeaderboard(new RipeUserService.LeaderboardCallback() {
+            @Override
+            public void populateLeaderboard(List<List<String>> leaderboard) {
+                int i = 1;
+                for(List<String> userContent: leaderboard){
+                    int score = Integer.parseInt(userContent.get(1));
+                    data.add(new PersonDataModel(i, userContent.get(0), score));
+                    i++;
+                }
 
-        adapter = new LeaderboardAdapter(data);
-        recyclerView.setAdapter(adapter);
+                adapter = new LeaderboardAdapter(data);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+
         return view;
     }
 

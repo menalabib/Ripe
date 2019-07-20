@@ -24,7 +24,7 @@ public class RipeGroupService {
     private RipeGroupService.RipeService ripeService;
     private final String url = "http://172.20.10.4:5000/";
 
-    RipeGroupService() {
+    public RipeGroupService() {
         try {
             this.retrofit = new Retrofit
                     .Builder()
@@ -33,7 +33,23 @@ public class RipeGroupService {
             this.ripeService = retrofit.create(RipeService.class);
         }
         catch (MalformedURLException e) { }
-        }
+    }
+
+    public interface CreateGroupCallback {
+        void setUpGroup(String groupId);
+    }
+
+    public interface GetGalleryCallback {
+        void setUpGallery(String[] contentIds);
+    }
+
+    public interface GetGroupContentCallback {
+        void setUpGroupContent(List<String> groupContent);
+    }
+
+    public interface JoinGroupCallback {
+        void finishJoiningGroup();
+    }
 
     private interface RipeService {
         @POST("create_group/{userId}")
@@ -74,9 +90,8 @@ public class RipeGroupService {
         );
     }
 
-    public void getGallery(String groupId) {
-        final Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-        final List<String> list = new ArrayList<>();
+    public void getGallery(String groupId, final GetGalleryCallback getGalleryCallback) {
+        final Type listType = new TypeToken<String[]>(){}.getType();
         Call<ResponseBody> response = ripeService.getGallery(groupId);
         response.enqueue(
                 new Callback<ResponseBody>() {
@@ -86,10 +101,8 @@ public class RipeGroupService {
                             System.out.println("got response");
                         }
                         try {
-                            List<String> gson = new Gson().fromJson(response.body().string(), listType);
-                            for(String s: gson) {
-                                list.add(s);
-                            }
+                            String[] list = new Gson().fromJson(response.body().string(), listType);
+                            getGalleryCallback.setUpGallery(list);
                             System.out.println("group gallery found");
                         } catch (Exception e) {
                             System.out.println("group gallery not found");
@@ -124,19 +137,17 @@ public class RipeGroupService {
         });
     }
 
-    public void getGroupContent(String userId, String groupId) {
+    public void getGroupContent(String userId, String groupId, final GetGroupContentCallback getGroupContentCallback) {
         Call<ResponseBody> response = ripeService.getGroupContent(userId, groupId);
         final Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-        final List<String> list = new ArrayList<>();
+
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 System.out.println("gotGroupContent");
                 try {
                     List<String> gson = new Gson().fromJson(response.body().string(), listType);
-                    for(String s: gson) {
-                        list.add(s);
-                    }
+                    getGroupContentCallback.setUpGroupContent(gson);
                 } catch(Exception exception) {
                     System.out.println("could not find content ids");
                 }
@@ -149,8 +160,6 @@ public class RipeGroupService {
             }
         });
     }
-
-
 
     public void postToGroup(String groupId, File file) {
         // Getting file info
@@ -172,7 +181,7 @@ public class RipeGroupService {
 
     }
 
-    public void joinGroup(String uid, String gid) {
+    public void joinGroup(String uid, String gid, final JoinGroupCallback joinGroupCallback) {
         Call<ResponseBody> response = ripeService.joinGroup(uid,gid);
         response.enqueue(
                 new Callback<ResponseBody>() {
@@ -180,6 +189,7 @@ public class RipeGroupService {
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         if (response.code() == 200) {
                             System.out.println("joined group");
+                            joinGroupCallback.finishJoiningGroup();
                         }
                     }
 
@@ -191,7 +201,7 @@ public class RipeGroupService {
         );
     }
 
-    public void createGroup(String uid) {
+    public void createGroup(String uid, final CreateGroupCallback createGroupCallback) {
         Call<ResponseBody> response = ripeService.createGroup(uid);
         response.enqueue(
                 new Callback<ResponseBody>() {
@@ -200,6 +210,7 @@ public class RipeGroupService {
                         if (response.code() == 200) {
                             System.out.println("created group");
                             try {
+                                createGroupCallback.setUpGroup(response.body().string());
                                 System.out.println("groupId: "+response.body().string());
                             } catch (Exception e) {
                                 System.out.println("But userId not found");
