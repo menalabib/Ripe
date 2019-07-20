@@ -34,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/imgShare"
                     android:id="@+id/title"
-                    android:hint="Title"
+                    android:hint="Set Title"
                     android:layout_centerVertical="true"
                     android:maxLength="30"
                     android:background="@null"
