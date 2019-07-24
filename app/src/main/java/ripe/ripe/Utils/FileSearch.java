@@ -1,5 +1,7 @@
 package ripe.ripe.Utils;
 
+import android.util.Log;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ public class FileSearch {
     public static ArrayList<String> getFilePaths(String directory) {
         ArrayList<String> pathArray = new ArrayList<>();
         File file = new File(directory);
+        Log.v("5", directory);
         File[] files = file.listFiles();
         for (File fil : files) {
             if(fil.isFile()) {

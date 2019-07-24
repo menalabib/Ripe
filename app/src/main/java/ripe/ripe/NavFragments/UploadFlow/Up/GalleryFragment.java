@@ -103,9 +103,22 @@ public class GalleryFragment extends Fragment {
         if(FileSearch.getDirectoryPaths(filePaths.PICTURES) != null) {
             directories = FileSearch.getDirectoryPaths(filePaths.PICTURES);
         }
-        directories.add(filePaths.CAMERA);
+        if(FileSearch.getDirectoryPaths(filePaths.CAMERA) != null) {
+            directories.addAll(FileSearch.getDirectoryPaths(filePaths.CAMERA));
+        }
+
+        // Delete empty dirs
+        final ArrayList<String> deleteCandidates = new ArrayList<>();
+
+        for (String dir : directories) {
+            if (FileSearch.getFilePaths(dir).size() == 0) {
+                deleteCandidates.add(dir);
+            }
+        }
+        directories.removeAll(deleteCandidates);
 
         final ArrayList<String> directoryNames = new ArrayList<>();
+
         for (String dir : directories) {
             directoryNames.add(dir.substring(dir.lastIndexOf("/") + 1));
         }
