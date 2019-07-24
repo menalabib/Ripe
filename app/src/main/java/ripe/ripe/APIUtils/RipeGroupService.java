@@ -22,7 +22,7 @@ import java.util.List;
 public class RipeGroupService {
     private Retrofit retrofit;
     private RipeGroupService.RipeService ripeService;
-    private final String url = "http://172.20.10.4:5000/";
+    private final String url =  "http://172.20.10.4:5000/";
 
     public RipeGroupService() {
         try {
