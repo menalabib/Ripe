@@ -137,21 +137,14 @@ def get_content_for_user(user_uid):
     shuffle(user_tags)
     viewed_content = user_dict[VIEWED_CONTENT]
     content_uploaded = user_dict[CONTENT_UPLOADED]
-    # user_content = []
-    # return_list = []
 
     for tag in user_tags:
         user_content = content_collection.find_one({TAGS: tag})
+        if user_content is not None:
+            if str(user_content.get('_id')) not in viewed_content and str(user_content.get('_id')) not in content_uploaded:
+                user_collection.update_one({UUID: user_uid}, {'$push': {VIEWED_CONTENT: user_content.get(UID)}})
+                return jsonify([user_content.get(UID), user_content.get(TITLE), user_content.get(IS_VIDEO)])
 
-        # for user_cont in user_content:
-        if str(user_content.get('_id')) not in viewed_content and str(user_content.get('_id')) not in content_uploaded:
-            user_collection.update_one({UUID: user_uid}, {'$push': {VIEWED_CONTENT: user_content.get(UID)}})
-            return jsonify([user_content.get(UID), user_content.get(TITLE), user_content.get(IS_VIDEO)])
-
-    # for all_cont in list(content_collection.find()):
-    #     if all_cont not in viewed_content:
-    #         return_list.append()
-    # return jsonify(return_list)
     user_content = list(content_collection.aggregate([
         {"$match": {"tags": {"$exists": True}}},
         {"$sample": {"size": 3}}
