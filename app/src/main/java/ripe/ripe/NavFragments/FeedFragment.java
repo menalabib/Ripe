@@ -126,7 +126,6 @@ public class FeedFragment extends Fragment {
             @Override
             public void setContent(String contentId, String title, boolean isVideo) {
                 // Set card contents
-
                 if (!contentId.equals("No Content Available")) {
                     titleTextView.setText(title);
                     relativeLayoutContainer.setTag(contentId);

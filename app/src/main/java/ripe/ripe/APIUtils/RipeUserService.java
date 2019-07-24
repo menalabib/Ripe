@@ -26,7 +26,7 @@ public class RipeUserService {
 
     private Retrofit retrofit;
     private RipeService ripeService;
-    private final String url = "http://172.20.10.4:5000/";
+    private final String url =  "http://172.20.10.4:5000/";
 
     public RipeUserService() {
         try {

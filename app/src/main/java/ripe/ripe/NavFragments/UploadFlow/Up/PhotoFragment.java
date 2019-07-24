@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -114,6 +115,7 @@ public class PhotoFragment extends Fragment {
             try {
                 if (data.getExtras().get("data") != null) {
                     bitmap = (Bitmap) data.getExtras().get("data");
+                    bitmap = rotateImage(bitmap, 90);
                     Intent intent = new Intent(getActivity(), TitleActivity.class);
                     intent.putExtra(getString(R.string.selected_bitmap), bitmap);
                     startActivity(intent);
@@ -152,5 +154,13 @@ public class PhotoFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
     }
 }
